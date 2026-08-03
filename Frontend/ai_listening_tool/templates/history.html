@@ -1,0 +1,556 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div id="rmtool">
+  <!-- Minimal header (empty to keep sticky space) -->
+  <header class="rm-header">
+    <div class="rm-header-content"></div>
+  </header>
+
+  <!-- History Content -->
+  <div class="rm-history-page">
+    <!-- Topbar inside white center column -->
+    <div class="rm-history-topbar">
+      <a href="{% url 'listening_tool:search' %}" class="rm-header-logo">
+        <img src="{% static 'ai_listening_tool/img/robotic_marketer_logo.jpg' %}" alt="Robotic Marketer"
+          class="rm-logo-img">
+      </a>
+      <form id="headerSearchForm" class="rm-header-search" method="get" action="{% url 'listening_tool:results' %}">
+        <input type="text" name="subject" id="headerSearchInput" placeholder="Search" class="rm-header-input">
+        <button type="submit" class="rm-header-btn-search">Search</button>
+      </form>
+    </div>
+    <div class="rm-history-sep"></div>
+    <div class="rm-history-layout">
+      <!-- Left Sidebar Filter -->
+      <aside class="rm-history-sidebar">
+        <h3 class="rm-sidebar-title">Refine by Date</h3>
+        <ul class="rm-date-filter rm-checklist">
+          <li><label><input type="checkbox"> <span>Today</span></label></li>
+          <li><label><input type="checkbox"> <span>Yesterday</span></label></li>
+          <li><label><input type="checkbox"> <span>Last 7 days</span></label></li>
+          <li><label><input type="checkbox"> <span>Last 30 Days</span></label></li>
+        </ul>
+      </aside>
+
+      <!-- Main Table Area -->
+      <main class="rm-history-main">
+        <h1 class="rm-history-page-title">Search History</h1>
+        <div class="rm-history-table-wrapper">
+          <table class="rm-history-data-table">
+            <thead>
+              <tr>
+                <th>Date Searched</th>
+                <th>Topic</th>
+                <th>Engagement</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr>
+                <td colspan="3" style="text-align: center; padding: 40px; color: #666;">
+                  Loading history...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination (outside bordered table, below) -->
+        <div class="rm-history-pagination" id="historyPagination">
+          <button class="rm-page-arrow rm-page-prev" disabled>‹</button>
+          <button class="rm-page-btn rm-page-num rm-page-active">1</button>
+          <button class="rm-page-arrow rm-page-next" disabled>›</button>
+        </div>
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="rm-history-footer">
+      AI-Topics Powered by Robotic Marketer®
+    </footer>
+  </div>
+</div>
+{% endblock %}
+
+{% block pagescripts %}
+<script>
+  // State management
+  let allHistory = [];
+  let filteredHistory = [];
+  let currentPage = 1;
+  let currentFilter = null;
+  let autoRefreshInterval = null;
+  const PAGE_SIZE = 5;
+  const AUTO_REFRESH_INTERVAL = 5000; // 5 seconds
+
+  // Date filter helpers
+  function getDateRange(filter) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    today.setHours(0, 0, 0, 0); // Set to start of day
+
+    switch (filter) {
+      case 'today':
+        const endOfToday = new Date(today);
+        endOfToday.setDate(endOfToday.getDate() + 1);
+        return { start: today, end: endOfToday };
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        return { start: yesterday, end: today };
+      case 'last7':
+        const last7 = new Date(today);
+        last7.setDate(last7.getDate() - 7);
+        return { start: last7, end: null };
+      case 'last30':
+        const last30 = new Date(today);
+        last30.setDate(last30.getDate() - 30);
+        return { start: last30, end: null };
+      default:
+        return null;
+    }
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return 'Unknown';
+
+    try {
+      const date = new Date(dateStr);
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+    } catch (e) {
+      console.error('Date formatting error:', e);
+      return dateStr;
+    }
+  }
+
+  function formatEngagement(count) {
+    if (!count || count === 0) return '0';
+    if (count >= 1000000) return Math.floor(count / 1000000) + 'M';
+    if (count >= 1000) return Math.floor(count / 1000) + 'K';
+    return count.toString();
+  }
+
+  // Fetch history data from API
+  async function loadHistory(silent = false) {
+    const tbody = document.getElementById('historyTableBody');
+
+    try {
+      // Fetch with larger limit, optionally filter by ai_ready
+      const showOnlyFinished = false; // Set to true to only show completed searches
+      const queryParams = { limit: 100 };
+      if (showOnlyFinished) {
+        queryParams.ai_ready = 'true';
+      }
+
+      const newHistory = await window.apiGet('/history/', queryParams);
+
+      // Check if data has changed (new searches added)
+      const hasNewData = !silent && allHistory.length > 0 && newHistory.length !== allHistory.length;
+
+      allHistory = newHistory;
+
+      // Re-apply current filter if any
+      applyDateFilter(currentFilter, true);
+
+      if (allHistory.length === 0) {
+        tbody.innerHTML = `
+        <tr>
+          <td colspan="3" style="text-align: center; padding: 40px; color: #666;">
+            No search history found. Try searching for a topic!
+          </td>
+        </tr>
+      `;
+        return;
+      }
+
+      if (hasNewData && !silent) {
+        console.log('New search history detected, refreshing table...');
+      }
+
+      renderTable();
+
+    } catch (error) {
+      console.error('Error loading history:', error);
+      if (!silent) {
+        tbody.innerHTML = `
+        <tr>
+          <td colspan="3" style="text-align: center; padding: 40px; color: #dc3545;">
+            ❌ Error loading history: ${error.message}
+            <br><br>
+            <button onclick="loadHistory()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              Try Again
+            </button>
+          </td>
+        </tr>
+      `;
+      }
+    }
+  }
+
+  // Apply date filter
+  function applyDateFilter(filter, skipReload = false) {
+    currentFilter = filter;
+
+    if (!filter) {
+      filteredHistory = [...allHistory];
+    } else {
+      const range = getDateRange(filter);
+      if (range) {
+        filteredHistory = allHistory.filter(item => {
+          if (!item.created_at) return false;
+
+          try {
+            const itemDate = new Date(item.created_at);
+
+            // Ensure valid date
+            if (isNaN(itemDate.getTime())) {
+              console.warn('Invalid date for item:', item);
+              return false;
+            }
+
+            if (range.end) {
+              // Between start and end (today or yesterday)
+              return itemDate >= range.start && itemDate < range.end;
+            } else {
+              // After start date (last 7 or 30 days)
+              return itemDate >= range.start;
+            }
+          } catch (e) {
+            console.error('Error filtering date:', e);
+            return false;
+          }
+        });
+      } else {
+        filteredHistory = [...allHistory];
+      }
+    }
+
+    if (!skipReload) {
+      currentPage = 1;
+    }
+    renderTable();
+  }
+
+  // Render table with current filtered data
+  function renderTable() {
+    const tbody = document.getElementById('historyTableBody');
+    const totalPages = Math.ceil(filteredHistory.length / PAGE_SIZE);
+
+    if (filteredHistory.length === 0 && allHistory.length > 0) {
+      tbody.innerHTML = `
+      <tr>
+        <td colspan="3" style="text-align: center; padding: 40px; color: #666;">
+          No results match the selected filter.
+        </td>
+      </tr>
+    `;
+      renderPagination(0);
+      return;
+    }
+
+    // Calculate pagination
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    const pageItems = filteredHistory.slice(start, end);
+
+    // Render table rows
+    tbody.innerHTML = pageItems.map(item => {
+      const dateSearched = formatDate(item.created_at);
+      const topic = item.subject || 'Untitled';
+
+      // Calculate total engagement from ai_count (number of results)
+      // Or use engagement_total if it exists
+      let engagement = item.engagement_total || item.ai_count || 0;
+      const engagementFormatted = formatEngagement(engagement);
+
+      const historyId = item.history_id;
+
+      return `
+      <tr class="rm-history-row" data-history-id="${historyId}" data-subject="${topic}" style="cursor: pointer;">
+        <td>${dateSearched}</td>
+        <td><strong>${topic}</strong></td>
+        <td><span class="rm-engagement-up">▲ ${engagementFormatted}</span></td>
+      </tr>
+    `;
+    }).join('');
+
+    // Add click handlers to rows
+    document.querySelectorAll('.rm-history-row').forEach(row => {
+      row.addEventListener('click', function () {
+        const historyId = this.getAttribute('data-history-id');
+        const subject = this.getAttribute('data-subject');
+        if (historyId) {
+          // Navigate to results page with history_id and subject
+          // This ensures the specific search instance is loaded, not a new search
+          const url = `{% url 'listening_tool:results' %}?history_id=${historyId}${subject ? '&subject=' + encodeURIComponent(subject) : ''}`;
+          window.location.href = url;
+        }
+      });
+
+      // Add hover effect
+      row.addEventListener('mouseenter', function () {
+        this.style.backgroundColor = '#f9fafb';
+      });
+      row.addEventListener('mouseleave', function () {
+        this.style.backgroundColor = '';
+      });
+    });
+
+    renderPagination(totalPages);
+  }
+
+  // Render pagination controls
+  function renderPagination(totalPages) {
+    const container = document.getElementById('historyPagination');
+
+    if (totalPages <= 1) {
+      container.innerHTML = '';
+      return;
+    }
+
+    let html = `
+    <button class="rm-page-arrow rm-page-prev" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">‹</button>
+  `;
+
+    // Show page numbers (max 5 visible)
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      html += `
+      <button class="rm-page-btn rm-page-num ${i === currentPage ? 'rm-page-active' : ''}" 
+              onclick="changePage(${i})">${i}</button>
+    `;
+    }
+
+    html += `
+    <button class="rm-page-arrow rm-page-next" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">›</button>
+  `;
+
+    container.innerHTML = html;
+  }
+
+  // Change page
+  function changePage(page) {
+    const totalPages = Math.ceil(filteredHistory.length / PAGE_SIZE);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderTable();
+  }
+
+  // Update auto-refresh indicator
+  function updateRefreshIndicator(active) {
+    const indicator = document.getElementById('autoRefreshIndicator');
+    const status = document.getElementById('refreshStatus');
+    const dot = document.getElementById('refreshDot');
+
+    if (!indicator || !status || !dot) return;
+
+    if (active) {
+      status.textContent = 'Auto-refresh enabled';
+      dot.style.background = '#10b981'; // Green
+    } else {
+      status.textContent = 'Auto-refresh paused';
+      dot.style.background = '#ef4444'; // Red
+    }
+  }
+
+  // Pulse animation for refresh indicator
+  function pulseRefreshIndicator() {
+    const dot = document.getElementById('refreshDot');
+    if (!dot) return;
+
+    dot.style.transform = 'scale(1.5)';
+    dot.style.opacity = '0.6';
+    setTimeout(() => {
+      dot.style.transform = 'scale(1)';
+      dot.style.opacity = '1';
+    }, 200);
+  }
+
+  // Start auto-refresh
+  function startAutoRefresh() {
+    // Clear existing interval if any
+    if (autoRefreshInterval) {
+      clearInterval(autoRefreshInterval);
+    }
+
+    // Set up new interval
+    autoRefreshInterval = setInterval(() => {
+      pulseRefreshIndicator();
+      loadHistory(true); // Silent refresh
+    }, AUTO_REFRESH_INTERVAL);
+
+    updateRefreshIndicator(true);
+    console.log('Auto-refresh started (every 5 seconds)');
+  }
+
+  // Stop auto-refresh
+  function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+      clearInterval(autoRefreshInterval);
+      autoRefreshInterval = null;
+      updateRefreshIndicator(false);
+      console.log('Auto-refresh stopped');
+    }
+  }
+
+  // Prevent text selection after autocomplete fills in
+  function preventAutoSelection(inputElement) {
+    if (!inputElement) return;
+    // Remove selection by moving cursor to end
+    const length = inputElement.value.length;
+    inputElement.setSelectionRange(length, length);
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("History page loaded");
+
+    // Prevent auto-selection on header search input
+    const headerSearchInput = document.getElementById('headerSearchInput');
+    if (headerSearchInput) {
+      headerSearchInput.addEventListener('input', () => {
+        setTimeout(() => preventAutoSelection(headerSearchInput), 10);
+      });
+      headerSearchInput.addEventListener('change', () => {
+        setTimeout(() => preventAutoSelection(headerSearchInput), 10);
+      });
+    }
+
+    // Filter checkboxes - single select behavior with date filtering
+    const filterCheckboxes = document.querySelectorAll('.rm-date-filter input[type="checkbox"]');
+    const filterMap = {
+      0: 'today',
+      1: 'yesterday',
+      2: 'last7',
+      3: 'last30'
+    };
+
+    filterCheckboxes.forEach((checkbox, index) => {
+      checkbox.addEventListener('change', function () {
+        if (this.checked) {
+          // Uncheck all other checkboxes
+          filterCheckboxes.forEach(cb => {
+            if (cb !== this) cb.checked = false;
+          });
+          // Apply filter
+          applyDateFilter(filterMap[index]);
+        } else {
+          // No filter selected, show all
+          applyDateFilter(null);
+        }
+      });
+    });
+
+    // Load history data
+    loadHistory();
+
+    // Start auto-refresh to catch new searches
+    startAutoRefresh();
+
+    // Stop auto-refresh when page is hidden/user switches tabs
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopAutoRefresh();
+      } else {
+        loadHistory(true); // Refresh immediately when returning to page
+        startAutoRefresh();
+      }
+    });
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+      stopAutoRefresh();
+    });
+  });
+</script>
+
+<style>
+  /* Fix table column widths to prevent resizing between pages */
+  .rm-history-data-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .rm-history-data-table th:nth-child(1),
+  .rm-history-data-table td:nth-child(1) {
+    width: 20%;
+    /* Date Searched */
+  }
+
+  .rm-history-data-table th:nth-child(2),
+  .rm-history-data-table td:nth-child(2) {
+    width: 60%;
+    /* Topic */
+  }
+
+  .rm-history-data-table th:nth-child(3),
+  .rm-history-data-table td:nth-child(3) {
+    width: 20%;
+    /* Engagement */
+  }
+
+  .rm-history-data-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rm-history-row {
+    transition: background-color 0.15s ease;
+  }
+
+  .rm-history-row:hover {
+    background-color: #f9fafb;
+  }
+
+  .rm-page-btn {
+    padding: 6px 12px;
+    margin: 0 2px;
+    border: 1px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+
+  .rm-page-btn:hover:not(:disabled) {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+  }
+
+  .rm-page-btn.rm-page-active {
+    background: #e11d2e;
+    color: white;
+    border-color: #e11d2e;
+  }
+
+  .rm-page-arrow {
+    padding: 6px 12px;
+    margin: 0 4px;
+    border: 1px solid #d1d5db;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .rm-page-arrow:hover:not(:disabled) {
+    background: #f3f4f6;
+  }
+
+  .rm-page-arrow:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+</style>
+{% endblock %}

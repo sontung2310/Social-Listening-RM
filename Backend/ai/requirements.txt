@@ -1,0 +1,12 @@
+transformers==4.57.1
+sentence-transformers==2.2.2
+torch==2.9.0
+spacy==3.7.2
+nltk==3.8.1
+numpy==2.2.5
+scikit-learn==1.7.2
+rank-bm25==0.2.2
+requests==2.31.0
+pymongo==4.15.1
+groq==0.4.2
+python-dotenv==1.0.0

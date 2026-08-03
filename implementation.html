@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Robotic Marketer AI Listening Tool — Implementation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f3ebe0;
+      --paper: #faf6f0;
+      --ink: #2b2118;
+      --muted: #6b5e52;
+      --border: #d9cfc3;
+      --heading: #1f4e79;
+      --link: #2b579a;
+      --accent-soft: #efe6d8;
+      --warn: #8a4b12;
+      --warn-bg: #f8f0e4;
+      --code-bg: #efe8de;
+      --max: 780px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
+      font-size: 11.5pt;
+      line-height: 1.7;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at top, #f7f1e8 0%, var(--bg) 55%, #ebe2d4 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 2.5rem 1.75rem 3.5rem;
+      background: var(--paper);
+      box-shadow: 0 0 0 1px var(--border), 0 8px 28px rgb(43 33 24 / 8%);
+      min-height: 100vh;
+    }
+
+    /* —— Word-like title (Title style) —— */
+    header.site {
+      text-align: center;
+      margin: 0.5rem 0 2rem;
+      padding-bottom: 1.25rem;
+      border-bottom: 1.5pt solid var(--ink);
+    }
+
+    header.site h1 {
+      margin: 0 0 0.45rem;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 28pt;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    header.site .tagline {
+      margin: 0;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 12pt;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    /* —— Word-like Table of Contents —— */
+    nav.toc {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: 0.25rem 0 1.75rem;
+      margin: 0 0 2rem;
+      box-shadow: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    nav.toc .toc-label {
+      margin: 0 0 0.85rem;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 16pt;
+      font-weight: 700;
+      color: var(--heading);
+      letter-spacing: 0;
+    }
+
+    nav.toc ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav.toc > ul > li {
+      margin: 0.15rem 0;
+    }
+
+    nav.toc .part-link,
+    nav.toc .sub a {
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+      width: 100%;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      color: var(--link);
+      text-decoration: none;
+      padding: 0.22rem 0;
+      line-height: 1.45;
+    }
+
+    nav.toc .part-link {
+      font-size: 13pt;
+      font-weight: 700;
+    }
+
+    nav.toc .part-link:hover,
+    nav.toc .sub a:hover {
+      text-decoration: underline;
+      color: #1a3f73;
+    }
+
+    nav.toc .toc-text {
+      flex: 0 1 auto;
+      max-width: calc(100% - 2.5rem);
+    }
+
+    /* Dotted leaders like Word TOC */
+    nav.toc .toc-dots {
+      flex: 1 1 auto;
+      border-bottom: 1px dotted #8a7d70;
+      margin: 0 0.35rem 0.2rem;
+      min-width: 1.25rem;
+      height: 0;
+      align-self: flex-end;
+    }
+
+    nav.toc .toc-page {
+      flex: 0 0 auto;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+      font-weight: 600;
+      min-width: 1.5rem;
+      text-align: right;
+    }
+
+    nav.toc .sub {
+      margin: 0;
+      padding: 0 0 0 1.5rem;
+      border-left: none;
+    }
+
+    nav.toc .sub li {
+      margin: 0;
+    }
+
+    nav.toc .sub a {
+      font-size: 11.5pt;
+      font-weight: 400;
+    }
+
+    nav.toc .sub .num {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: var(--ink);
+      margin-right: 0.35rem;
+    }
+
+    h4 {
+      margin: 1.35rem 0 0.5rem;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--heading);
+      letter-spacing: 0;
+      line-height: 1.35;
+    }
+
+    p { margin: 0.55rem 0; }
+
+    .lead {
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .callout {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0.85rem 1rem;
+      margin: 1.1rem 0;
+      font-size: 10.5pt;
+      background: #f7f1e8;
+    }
+
+    .callout.warn {
+      background: var(--warn-bg);
+      border-color: #e2c9a0;
+      color: var(--warn);
+    }
+
+    .callout h4 {
+      margin: 0 0 0.4rem;
+      font-size: 11pt;
+      color: var(--warn);
+    }
+
+    .callout ul {
+      margin: 0.25rem 0 0;
+      padding-left: 1.15rem;
+    }
+
+    code {
+      font-family: Consolas, "Courier New", ui-monospace, monospace;
+      font-size: 0.9em;
+      background: var(--code-bg);
+      padding: 0.1em 0.3em;
+      border-radius: 2px;
+    }
+
+    pre:not(.mermaid) {
+      background: #3d342c;
+      color: #f7f1e8;
+      padding: 0.9rem 1.05rem;
+      overflow-x: auto;
+      font-family: Consolas, "Courier New", ui-monospace, monospace;
+      font-size: 9.5pt;
+      line-height: 1.5;
+      margin: 0.65rem 0 1.1rem;
+      border-radius: 0;
+      border: 1px solid #2b2118;
+    }
+
+    pre:not(.mermaid) code {
+      background: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1.15rem;
+      font-size: 10.5pt;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.55rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--accent-soft);
+      font-weight: 700;
+      color: var(--heading);
+    }
+
+    .diagram {
+      background: #fffdf9;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0.85rem 1rem 0.5rem;
+      margin: 0.85rem 0 1.25rem;
+      overflow-x: auto;
+    }
+
+    .diagram .caption {
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 9.5pt;
+      color: var(--muted);
+      margin: 0 0 0.55rem;
+      font-weight: 600;
+      font-style: italic;
+    }
+
+    pre.mermaid {
+      background: #fffdf9 !important;
+      color: var(--ink) !important;
+      padding: 0.25rem 0 0.5rem;
+      margin: 0;
+      overflow: visible;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    ul.compact {
+      padding-left: 1.2rem;
+      margin: 0.4rem 0 1rem;
+    }
+
+    ul.compact li { margin-bottom: 0.35rem; }
+
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 9.5pt;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* —— Content page (Word Heading 1 / Heading 2 numbering) —— */
+    .content-page {
+      counter-reset: h1-counter;
+      font-family: "Libre Baskerville", Georgia, "Times New Roman", serif;
+      color: var(--ink);
+      line-height: 1.7;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .content-page h1 {
+      counter-reset: h2-counter;
+      counter-increment: h1-counter;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 18pt;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.2rem;
+      border-bottom: none;
+      letter-spacing: 0;
+      color: var(--heading);
+      page-break-after: avoid;
+    }
+
+    .content-page h1::before {
+      content: counter(h1-counter) ". ";
+      color: var(--heading);
+      font-weight: 700;
+    }
+
+    .content-page h2 {
+      counter-increment: h2-counter;
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 15pt;
+      font-weight: 700;
+      margin-top: 1.75rem;
+      margin-bottom: 0.55rem;
+      color: var(--heading);
+    }
+
+    .content-page h2::before {
+      content: counter(h1-counter) "." counter(h2-counter) " ";
+      color: var(--heading);
+      font-weight: 700;
+    }
+
+    .content-page p {
+      margin-bottom: 0.85rem;
+      color: var(--ink);
+    }
+
+    .content-page .lead {
+      color: var(--muted);
+    }
+
+    .content-page h4 {
+      font-family: "Source Sans 3", Calibri, "Segoe UI", sans-serif;
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--heading);
+    }
+
+    .content-page code {
+      font-family: Consolas, "Courier New", ui-monospace, monospace;
+    }
+
+    @media (max-width: 640px) {
+      .wrap {
+        box-shadow: none;
+        padding: 1.5rem 1rem 2.5rem;
+      }
+
+      header.site h1 {
+        font-size: 22pt;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="site">
+      <h1>Robotic Marketer AI Listening Tool</h1>
+      <p class="tagline">Implementation documentation for extended data sources.</p>
+    </header>
+
+    <nav class="toc" aria-label="Table of Contents">
+      <p class="toc-label">Table of Contents</p>
+      <ul>
+        <li>
+          <a class="part-link" href="#part-1">
+            <span class="toc-text">1. Extend data sources</span>
+            <span class="toc-dots" aria-hidden="true"></span>
+            <span class="toc-page">1</span>
+          </a>
+          <ul class="sub">
+            <li>
+              <a href="#x-playwright">
+                <span class="toc-text"><span class="num">1.1</span> X (Twitter) via Playwright</span>
+                <span class="toc-dots" aria-hidden="true"></span>
+                <span class="toc-page">1</span>
+              </a>
+            </li>
+            <li>
+              <a href="#youtube-api">
+                <span class="toc-text"><span class="num">1.2</span> YouTube Data API</span>
+                <span class="toc-dots" aria-hidden="true"></span>
+                <span class="toc-page">1</span>
+              </a>
+            </li>
+            <li>
+              <a href="#reddit-playwright">
+                <span class="toc-text"><span class="num">1.3</span> Reddit via Playwright</span>
+                <span class="toc-dots" aria-hidden="true"></span>
+                <span class="toc-page">1</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a class="part-link" href="#part-2">
+            <span class="toc-text">2. Data pipeline design plan</span>
+            <span class="toc-dots" aria-hidden="true"></span>
+            <span class="toc-page">2</span>
+          </a>
+          <ul class="sub">
+            <li>
+              <a href="#pipeline-workflow">
+                <span class="toc-text"><span class="num">2.1</span> End-to-end workflow</span>
+                <span class="toc-dots" aria-hidden="true"></span>
+                <span class="toc-page">2</span>
+              </a>
+            </li>
+            <li>
+              <a href="#pipeline-decisions">
+                <span class="toc-text"><span class="num">2.2</span> Design decisions</span>
+                <span class="toc-dots" aria-hidden="true"></span>
+                <span class="toc-page">2</span>
+              </a>
+            </li>
+            <li>
+              <a href="#pipeline-contract">
+                <span class="toc-text"><span class="num">2.3</span> Implementation contract</span>
+                <span class="toc-dots" aria-hidden="true"></span>
+                <span class="toc-page">2</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <!--
+      AGENT: X crawler — Backend/Backend/api/sources/x_playwright.py
+      Classes: XPlaywrightClient, XSearchCrawler, XProfileCrawler
+      Entry: fetch(), fetch_profile() | Keys: x_playwright, x_playwright_profile
+      Helpers in utils.py: human_delay, parse_engagement_count, truncate_title
+      Not in REGISTRY yet. Auth: module globals X_AUTH_TOKEN, X_CT0
+
+      AGENT: YouTube crawler — Backend/Backend/api/sources/youtube_api.py
+      Classes: YouTubeApiClient, YouTubeSearchCrawler, YouTubeTrendingCrawler
+      Entry: fetch(), fetch_trending() | Keys: youtube_search, youtube_trending
+      Auth: YOUTUBE_API_KEY in credentials/backend.env (via config.py)
+      Not in REGISTRY yet.
+
+      AGENT: Reddit crawler — Backend/Backend/api/sources/reddit_playwright.py
+      Classes: RedditPlaywrightClient, RedditSearchCrawler, RedditSubredditCrawler,
+      RedditCommentsCrawler
+      Entry: fetch(), fetch_subreddit()
+      Keys: reddit_playwright, reddit_playwright_subreddit, reddit_playwright_comments
+      Auth: module globals REDDIT_SESSION and optional REDDIT_TOKEN_V2
+      Not in REGISTRY yet. Returns CrawlResult with separate posts/comments lists.
+    -->
+
+    <div class="content-page">
+    <section id="part-1">
+      <h1>Extend data sources</h1>
+      <p class="lead">
+        The listening tool collects posts from Reddit, news APIs, and similar sources via a shared
+        <code>fetch(query, limit) → list[dict]</code> contract.
+        This part covers new sources beyond the original registry.
+      </p>
+
+      <h2 id="x-playwright">X (Twitter) via Playwright</h2>
+
+      <h4>Overview</h4>
+      <p>
+        Module <code>Backend/Backend/api/sources/x_playwright.py</code> crawls X with Playwright
+        (not the paid X API). It reuses a logged-in browser session via cookies
+        (<code>X_AUTH_TOKEN</code>, <code>X_CT0</code> as module globals), then either searches
+        by keywords or opens a user profile. Results match the same post shape used by Reddit/news sources.
+      </p>
+      <p>
+        Entry points: <code>fetch()</code> (search), <code>fetch_profile()</code> (profile).
+        Source keys: <code>x_playwright</code>, <code>x_playwright_profile</code>.
+        Not registered in <code>__init__.py</code> yet — run via CLI or direct import.
+      </p>
+
+      <h4>Architecture</h4>
+      <table>
+        <thead>
+          <tr><th>Class</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>XPlaywrightClient</code></td>
+            <td>Browser session, cookies, scroll, tweet DOM parsing</td>
+          </tr>
+          <tr>
+            <td><code>XSearchCrawler</code></td>
+            <td>Search URL + Advanced Search operators</td>
+          </tr>
+          <tr>
+            <td><code>XProfileCrawler</code></td>
+            <td>Profile timeline (<code>https://x.com/{user}</code>)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="diagram">
+        <p class="caption">Class composition</p>
+        <pre class="mermaid">
+flowchart LR
+  search[XSearchCrawler] --> client[XPlaywrightClient]
+  profile[XProfileCrawler] --> client
+  client --> browser[Chromium]
+  browser --> xsite[x.com]
+  client --> rows[Post dicts]
+        </pre>
+      </div>
+
+      <h4>How it works</h4>
+      <p>
+        Navigation is URL-driven (no search-bar typing or tab clicks). Search opens
+        <code>/search?q=…&amp;f=live|top</code>; profile opens <code>/username</code>.
+        The client waits for <code>article[data-testid="tweet"]</code>, parses posts,
+        then scrolls with random delays (<code>human_delay</code>) up to <code>X_MAX_SCROLLS</code>.
+      </p>
+
+      <div class="diagram">
+        <p class="caption">Crawl flow (search and profile share the client)</p>
+        <pre class="mermaid">
+flowchart TD
+  start[Start fetch] --> auth{Cookies set?}
+  auth -->|No| empty[Return empty list]
+  auth -->|Yes| url[Build search or profile URL]
+  url --> open[Open page with Playwright]
+  open --> wait[Wait for tweet articles]
+  wait --> wall{Login wall?}
+  wall -->|Yes| empty
+  wall -->|No| loop[Parse tweets then scroll]
+  loop --> done[Return normalized rows]
+        </pre>
+      </div>
+
+      <p>
+        Search supports X Advanced Search operators when set (empty = skip):
+        <code>since:</code> / <code>until:</code>,
+        <code>min_replies:</code> / <code>min_faves:</code> / <code>min_retweets:</code>.
+        Tab filter: <code>live</code> (Latest / time order) or <code>top</code> (popularity).
+        Explicit args override module globals.
+      </p>
+
+      <h4>Output shape</h4>
+      <pre><code>{
+  "post_id": "x_playwright:{status_id}",
+  "source": "x_playwright",
+  "url": "https://x.com/{user}/status/{id}",
+  "title": "truncated text",
+  "text": "plain tweet body",
+  "published_ts": 1710000000,
+  "author": "@user",
+  "domain": "x.com",
+  "engagement": { "likes", "retweets", "comments", "views" }
+}</code></pre>
+
+      <h4>CLI</h4>
+      <pre><code># Search
+python -m api.sources.x_playwright search --query "AI" --limit 5 --filter live \
+  --since 2026-07-14 --until 2026-07-16 --min-faves 50
+
+# Profile
+python -m api.sources.x_playwright profile --user Roboticmarketer --limit 10</code></pre>
+      <p>
+        Search flags: <code>--query</code>, <code>--limit</code>, <code>--filter</code>,
+        <code>--since</code>, <code>--until</code>, <code>--min-replies</code>,
+        <code>--min-faves</code>, <code>--min-retweets</code>, <code>--json</code>.
+        Profile flags: <code>--user</code> (required), <code>--limit</code>, <code>--json</code>.
+        Run from <code>code/Backend/Backend</code>.
+      </p>
+
+      <h4>Tech stack</h4>
+      <ul class="compact">
+        <li>Python + Playwright Chromium (<code>playwright&gt;=1.49.0</code>; <code>playwright install chromium</code>)</li>
+        <li><code>requests</code> for advisory <code>robots.txt</code> check</li>
+        <li>Helpers in <code>utils.py</code>: <code>clean_html_to_text</code>, <code>human_delay</code>, <code>parse_engagement_count</code>, <code>truncate_title</code></li>
+      </ul>
+
+      <h4>Use cases</h4>
+      <ul class="compact">
+        <li><strong>Topic discovery</strong> — keyword search with optional date / engagement filters</li>
+        <li><strong>Account monitoring</strong> — crawl a profile timeline (handle or URL)</li>
+        <li><strong>Standalone testing</strong> — CLI without wiring into <code>REGISTRY</code> / <code>views.py</code></li>
+      </ul>
+
+      <div class="callout warn">
+        <h4>Limits</h4>
+        <ul>
+          <li>DOM selectors can break when X changes UI; cookies expire and must be refreshed.</li>
+          <li>Prefer a dedicated account; keep scroll delays; scraping may conflict with X ToS.</li>
+          <li>Set <code>X_HEADLESS = False</code> if headless is blocked. Views may be missing.</li>
+        </ul>
+      </div>
+
+      <h2 id="youtube-api">YouTube Data API</h2>
+
+      <h4>Overview</h4>
+      <p>
+        Module <code>Backend/Backend/api/sources/youtube_api.py</code> crawls YouTube via the official
+        Data API v3 (HTTP <code>requests</code>, no browser). Auth is an API key loaded from
+        <code>credentials/backend.env</code> as <code>YOUTUBE_API_KEY</code> (via <code>config.py</code>).
+        Two modes: keyword search and regional trending (<code>chart=mostPopular</code>).
+        Results follow the shared post contract, with extra niche-insight fields
+        (engagement rates, trending / breakout scores, channel size, topics).
+      </p>
+      <p>
+        Entry points: <code>fetch()</code> (search), <code>fetch_trending()</code> (trending).
+        Source keys: <code>youtube_search</code>, <code>youtube_trending</code>.
+        Not registered in <code>__init__.py</code> yet — run via CLI or direct import.
+      </p>
+
+      <h4>Architecture</h4>
+      <table>
+        <thead>
+          <tr><th>Class</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>YouTubeApiClient</code></td>
+            <td>HTTP client, region aliases, <code>search</code> / <code>videos</code> / <code>channels</code> batching</td>
+          </tr>
+          <tr>
+            <td><code>YouTubeSearchCrawler</code></td>
+            <td>Keyword search → enrich video + channel stats</td>
+          </tr>
+          <tr>
+            <td><code>YouTubeTrendingCrawler</code></td>
+            <td>Regional <code>mostPopular</code> chart (no keyword)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="diagram">
+        <p class="caption">Class composition</p>
+        <pre class="mermaid">
+flowchart LR
+  search[YouTubeSearchCrawler] --> client[YouTubeApiClient]
+  trending[YouTubeTrendingCrawler] --> client
+  client --> searchEP[search.list]
+  client --> videosEP[videos.list]
+  client --> channelsEP[channels.list]
+  client --> rows[Post dicts]
+        </pre>
+      </div>
+
+      <h4>How it works</h4>
+      <p>
+        <strong>Search</strong> is a two-step enrich pipeline: <code>search.list</code> returns video IDs
+        (with <code>q</code>, <code>order</code>, optional <code>regionCode</code> / <code>publishedAfter</code>),
+        then <code>videos.list</code> loads snippet, statistics, and topic details, and
+        <code>channels.list</code> adds subscriber counts. Rows are sorted by
+        <code>engagement.trending_score</code>.
+      </p>
+      <p>
+        <strong>Trending</strong> calls <code>videos.list?chart=mostPopular</code> for a region
+        (optional <code>videoCategoryId</code>). It has no keyword filter at the API level —
+        use search for niche queries; use trending for a regional market pulse.
+      </p>
+
+      <div class="diagram">
+        <p class="caption">Crawl flow (search path)</p>
+        <pre class="mermaid">
+flowchart TD
+  start[Start fetch] --> key{API key set?}
+  key -->|No| empty[Return empty list]
+  key -->|Yes| search[search.list for video IDs]
+  search --> videos[videos.list enrich]
+  videos --> channels[channels.list subscribers]
+  channels --> map[Map rows + compute metrics]
+  map --> done[Return sorted rows]
+        </pre>
+      </div>
+
+      <p>
+        Optional module globals (<code>None</code> = unset):
+        <code>YOUTUBE_REGION_CODE</code>, <code>YOUTUBE_SEARCH_ORDER</code>,
+        <code>YOUTUBE_PUBLISHED_AFTER_DAYS</code>.
+        Runtime defaults when arg and global are both unset:
+        <code>order=viewCount</code>, <code>published_after_days=60</code>
+        (pass <code>0</code> to omit the recency filter).
+        <code>location</code> aliases <code>region_code</code> (e.g. <code>AU</code> / <code>Australia</code> → <code>AU</code>).
+      </p>
+
+      <h4>Output shape</h4>
+      <pre><code>{
+  "post_id": "youtube_search:{video_id}",
+  "source": "youtube_search",
+  "url": "https://www.youtube.com/watch?v={id}",
+  "title": "video title",
+  "description": "video description",
+  "text": "same as description (persist shim)",
+  "published_ts": 1710000000,
+  "author": "Channel Name",
+  "channel_id": "UC…",
+  "channel_subscriber_count": 12000,
+  "video_category_id": "28",
+  "video_category_label": "Science & Technology",
+  "tags": ["…"],
+  "topic_categories": ["https://en.wikipedia.org/wiki/…"],
+  "engagement": {
+    "likes", "views", "comments",
+    "like_rate", "comment_rate", "views_per_day",
+    "trending_score", "breakout_score"
+  }
+}</code></pre>
+      <p>
+        <code>trending_score = views / age_days^0.6</code> favors recent high-view videos.
+        <code>breakout_score = views_per_day / subscribers</code> flags small channels punching above their weight.
+      </p>
+
+      <h4>CLI</h4>
+      <pre><code># Search
+python -m api.sources.youtube_api search --query "niche marketing" --limit 10 \
+  --region-code AU --published-after-days 60 --order viewCount
+
+# Trending
+python -m api.sources.youtube_api trending --limit 20 --region-code US \
+  --video-category-id 28 --json</code></pre>
+      <p>
+        Search flags: <code>--query</code>, <code>--limit</code>, <code>--region-code</code>,
+        <code>--location</code>, <code>--published-after-days</code>, <code>--order</code>, <code>--json</code>.
+        Trending flags: <code>--limit</code>, <code>--region-code</code>, <code>--location</code>,
+        <code>--video-category-id</code>, <code>--json</code>.
+        Run from <code>code/Backend/Backend</code>.
+      </p>
+
+      <h4>Tech stack</h4>
+      <ul class="compact">
+        <li>Python + <code>requests</code> against <code>https://www.googleapis.com/youtube/v3</code></li>
+        <li>API key via <code>config.YOUTUBE_API_KEY</code> / <code>credentials/backend.env</code></li>
+        <li>No extra pip packages beyond existing Backend deps</li>
+      </ul>
+
+      <h4>Use cases</h4>
+      <ul class="compact">
+        <li><strong>Niche discovery</strong> — keyword search with view-count order and a 30–90 day window</li>
+        <li><strong>Regional pulse</strong> — trending / mostPopular for AU or US (optional category)</li>
+        <li><strong>Breakout signals</strong> — small channels with high <code>breakout_score</code></li>
+        <li><strong>Standalone testing</strong> — CLI without wiring into <code>REGISTRY</code> / <code>views.py</code></li>
+      </ul>
+
+      <div class="callout warn">
+        <h4>Limits</h4>
+        <ul>
+          <li>Daily quota (~10,000 units): <code>search.list</code> ≈ 100/call; <code>videos.list</code> / <code>channels.list</code> ≈ 1/call.</li>
+          <li>Trending cannot filter by keyword at the API level; use search for topic-specific crawls.</li>
+          <li>Missing or invalid API key returns an empty list (CLI exit code 2).</li>
+        </ul>
+      </div>
+
+      <h2 id="reddit-playwright">Reddit via Playwright</h2>
+
+      <h4>Overview</h4>
+      <p>
+        Module <code>Backend/Backend/api/sources/reddit_playwright.py</code> crawls the current
+        <code>www.reddit.com</code> interface with Playwright. It reuses a logged-in browser session
+        through the <code>reddit_session</code> cookie and supports two mutually exclusive modes:
+        global keyword search and a subreddit listing such as <code>r/digital_marketing</code>.
+      </p>
+      <p>
+        Entry points: <code>fetch()</code> (keyword search) and <code>fetch_subreddit()</code>
+        (subreddit listing). Source keys are <code>reddit_playwright</code>,
+        <code>reddit_playwright_subreddit</code>, and <code>reddit_playwright_comments</code>.
+        Each call returns <code>{"posts": [...], "comments": [...]}</code>. The module is standalone:
+        it is not registered in <code>api/sources/__init__.py</code> and does not persist results.
+      </p>
+
+      <h4>Architecture</h4>
+      <table>
+        <thead>
+          <tr><th>Class</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>RedditPlaywrightClient</code></td>
+            <td>Chromium session, cookies, navigation, scrolling, and post DOM parsing</td>
+          </tr>
+          <tr>
+            <td><code>RedditSearchCrawler</code></td>
+            <td>Builds <code>/search/</code> URLs and runs global keyword searches</td>
+          </tr>
+          <tr>
+            <td><code>RedditSubredditCrawler</code></td>
+            <td>Normalizes subreddit names and builds <code>/r/{name}/{sort}/</code> URLs</td>
+          </tr>
+          <tr>
+            <td><code>RedditCommentsCrawler</code></td>
+            <td>One visit per post: enrich metadata; optionally collect comments on the same page</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="diagram">
+        <p class="caption">Class composition and crawl flow</p>
+        <pre class="mermaid">
+flowchart LR
+  search[RedditSearchCrawler] --> client[RedditPlaywrightClient]
+  subreddit[RedditSubredditCrawler] --> client
+  client --> browser[Chromium]
+  browser --> reddit[www.reddit.com]
+  client --> posts[Post rows]
+  posts --> visit[Open each post once]
+  visit --> enrich[Enrich metadata]
+  enrich --> comments{Include comments?}
+  comments -->|Yes| commentCrawler[Collect comments same visit]
+  comments -->|No| result[CrawlResult]
+  commentCrawler --> result
+        </pre>
+      </div>
+
+      <h4>How it works</h4>
+      <p>
+        Navigation is URL-driven. Keyword mode opens
+        <code>/search/?q={query}&amp;type=link</code>; <code>type=link</code> selects Reddit's
+        Posts results. Subreddit mode opens <code>/r/{subreddit}/</code> or
+        <code>/r/{subreddit}/{sort}/</code>. Inputs such as <code>r/digital_marketing</code>,
+        <code>/r/digital_marketing/</code>, and a Reddit subreddit URL are normalized to the
+        subreddit name.
+      </p>
+      <p>
+        Reddit renders the two modes differently. Subreddit feeds and post pages use
+        <code>&lt;shreddit-post&gt;</code>, while search uses
+        <code>[data-testid="sdui-post-unit"]</code>. The client waits for either selector,
+        extracts visible cards, deduplicates by Reddit post ID, and scrolls with random delays
+        until it reaches the requested limit or no new cards appear.
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>Mode</th><th>Allowed sort values</th><th>Time filter behavior</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Keyword search</td>
+            <td><code>relevance</code>, <code>hot</code>, <code>top</code>, <code>new</code>, <code>comments</code></td>
+            <td><code>t=</code> is applied with <code>top</code> or <code>relevance</code></td>
+          </tr>
+          <tr>
+            <td>Subreddit</td>
+            <td><code>hot</code>, <code>top</code>, <code>new</code>, <code>best</code>, <code>rising</code></td>
+            <td><code>t=</code> is applied only with <code>top</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Valid time values are <code>hour</code>, <code>day</code>, <code>week</code>,
+        <code>month</code>, and <code>year</code>. If a time filter is supplied with an
+        unsupported sort (for example, subreddit <code>hot</code> plus <code>week</code>),
+        the crawler logs a warning and omits <code>t=</code> from the URL. Invalid sort or time
+        values raise <code>ValueError</code>.
+      </p>
+
+      <h4>Post and comment extraction</h4>
+      <p>
+        Feed/search listing cards are collected first (title, permalink, and whatever
+        engagement Reddit shows on the card). The crawler then opens <strong>each post
+        page once</strong> to enrich metadata from <code>&lt;shreddit-post&gt;</code>:
+        author, self-text/caption, publication time, domain, subreddit, and engagement
+        fields when present. It does not download images or video and does not fetch
+        outbound link contents.
+      </p>
+      <p>
+        If <code>include_comments=True</code>, comments are collected during that
+        <strong>same</strong> post-page visit (no second navigation). Nodes are
+        <code>&lt;shreddit-comment&gt;</code>, returned as a flat list.
+        <code>num_comment_crawl</code> limits top-level comments to a hard cap of 50;
+        <code>get_replies=True</code> also includes nested replies and sets
+        <code>parent_comment_id</code>.
+      </p>
+
+      <h4>Output shape</h4>
+      <pre><code>{
+  "posts": [{
+    "post_id": "reddit_playwright:{reddit_id}",
+    "source": "reddit_playwright",
+    "url": "https://www.reddit.com/r/{sub}/comments/{id}/...",
+    "title": "post title",
+    "text": "self-text or caption",
+    "text_html": "raw body HTML when available",
+    "published_ts": 1710000000,
+    "author": "reddit_username",
+    "domain": "self.subreddit or linked domain",
+    "subreddit": "digital_marketing",
+    "engagement": {
+      "upvotes": 42,
+      "comments": 7,
+      "share": null
+    }
+  }],
+  "comments": [{
+    "comment_id": "reddit_comment_id",
+    "source": "reddit_playwright_comments",
+    "parent_content_id": "reddit_post_id",
+    "parent_content_url": "https://www.reddit.com/r/...",
+    "author": "reddit_username",
+    "text": "comment text",
+    "like_count": 5,
+    "reply_count": 2,
+    "parent_comment_id": null,
+    "published_ts": 1710000000
+  }]
+}</code></pre>
+      <p>
+        The subreddit mode uses <code>reddit_playwright_subreddit</code> in the post
+        <code>source</code> and <code>post_id</code> prefix. The <code>share</code> value is the
+        crosspost/repost count only when Reddit exposes one in the DOM; otherwise it is
+        <code>null</code>. It is not a general share-click count.
+      </p>
+
+      <h4>CLI</h4>
+      <pre><code># Keyword search: top posts from the past week, including comments
+python -m api.sources.reddit_playwright search --query "AI marketing" --limit 5 \
+  --sort top --time-filter week --include-comments --num-comment-crawl 3 --json
+
+# Subreddit listing: hot posts plus nested replies
+python -m api.sources.reddit_playwright subreddit \
+  --subreddit r/digital_marketing --limit 5 --sort hot \
+  --include-comments --num-comment-crawl 3 --get-replies --json</code></pre>
+      <p>
+        Shared flags: <code>--limit</code>, <code>--sort</code>,
+        <code>--time-filter</code>, <code>--include-comments</code>,
+        <code>--num-comment-crawl</code>, <code>--get-replies</code>, and
+        <code>--json</code>. Search adds <code>--query</code>; subreddit mode requires
+        <code>--subreddit</code>. Run from <code>code/Backend/Backend</code>.
+      </p>
+
+      <h4>Tech stack</h4>
+      <ul class="compact">
+        <li>Python + Playwright Chromium against <code>https://www.reddit.com</code></li>
+        <li>Logged-in session via module globals <code>REDDIT_SESSION</code> and optional <code>REDDIT_TOKEN_V2</code></li>
+        <li><code>requests</code> for an advisory <code>robots.txt</code> check</li>
+        <li>Shared helpers in <code>utils.py</code> for delays, text cleanup, title truncation, and engagement parsing</li>
+      </ul>
+
+      <h4>Use cases</h4>
+      <ul class="compact">
+        <li><strong>Topic discovery</strong> — search Reddit posts globally by keyword</li>
+        <li><strong>Community monitoring</strong> — collect posts from one named subreddit</li>
+        <li><strong>Conversation analysis</strong> — collect top-level comments and optional reply relationships</li>
+        <li><strong>Standalone testing</strong> — CLI or direct import without changing <code>REGISTRY</code></li>
+      </ul>
+
+      <div class="callout warn">
+        <h4>Limits</h4>
+        <ul>
+          <li>Reddit can change <code>shreddit-post</code>, search-card, or comment markup, which can break selectors.</li>
+          <li>Session cookies expire and must be refreshed.</li>
+          <li>Every crawl opens each collected post once to enrich metadata (and comments when requested), so it is slower than listing-only scrapes.</li>
+          <li>Search listing cards alone are sparse; enriched fields come from the post page. <code>share</code> stays <code>null</code> when Reddit does not expose a crosspost count.</li>
+          <li>Use conservative delays and ensure crawling complies with Reddit's terms and applicable policies.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="part-2">
+      <h1>Data pipeline design plan</h1>
+      <p class="lead" style="border-left:4px solid #b45309;padding-left:0.75rem;color:#78350f;">
+        <strong>Historical note (Aug 2026):</strong> Kafka was removed from Pace-Unit.
+        Current architecture uses SQS + sibling repo <code>Data-Crawler-Task</code>
+        — see <code>SYSTEM_ARCHITECTURE.md</code> and <code>FUTURE_WORK.md</code>.
+        The Kafka diagrams below are retained as design history only.
+      </p>
+      <p class="lead">
+        Decouple crawling, persistence, and AI processing with Kafka. Keep one MongoDB database,
+        while separating posts and comments because their raw and AI schemas differ.
+      </p>
+
+      <h2 id="pipeline-workflow">End-to-end workflow</h2>
+      <div class="mermaid">
+flowchart TD
+  sources["Source producers<br/>News APIs · RSS · Reddit · X · YouTube"]
+  posts["ingest.raw.posts"]
+  comments["ingest.raw.comments"]
+  rawPostWriter["Raw post writer"]
+  rawCommentWriter["Raw comment writer"]
+  rawPosts[("raw_posts")]
+  rawComments[("raw_comments")]
+  aiInput["pipeline.ai.input"]
+  aiWorkers["AI workers<br/>rank · summarize · sentiment · tags"]
+  aiResults["pipeline.ai.results"]
+  aiWriter["AI result router"]
+  aiPosts[("ai_posts")]
+  aiComments[("ai_comments")]
+  dlq["ingest.dlq"]
+
+  sources -->|"content_type: post"| posts
+  sources -->|"content_type: comment"| comments
+  posts --> rawPostWriter --> rawPosts
+  comments --> rawCommentWriter --> rawComments
+  rawPostWriter -->|"after successful upsert"| aiInput
+  rawCommentWriter -->|"after successful upsert"| aiInput
+  aiInput --> aiWorkers --> aiResults --> aiWriter
+  aiWriter -->|"content_type: post"| aiPosts
+  aiWriter -->|"content_type: comment"| aiComments
+  rawPostWriter -. "unrecoverable" .-> dlq
+  rawCommentWriter -. "unrecoverable" .-> dlq
+  aiWorkers -. "unrecoverable" .-> dlq
+
+  classDef kafka fill:#e7eff8,stroke:#1f4e79,stroke-width:2px,color:#183b59
+  classDef database fill:#e8f1eb,stroke:#4f6f5d,stroke-width:2px,color:#30483a
+  class posts,comments,aiInput,aiResults,dlq kafka
+  class rawPosts,rawComments,aiPosts,aiComments database
+      </div>
+      <p>
+        <strong>Workflow key:</strong> blue nodes are Kafka topics; green cylinder nodes are MongoDB collections.
+      </p>
+      <ol>
+        <li>Create a <code>history</code> record for the crawl/search run.</li>
+        <li>Each source fetches and normalizes data, then publishes posts and comments separately.</li>
+        <li>Raw consumers upsert MongoDB documents and publish successful records to the shared AI input topic.</li>
+        <li>AI workers process both entity types and publish results with <code>content_type</code>.</li>
+        <li>The result consumer routes each event to the matching AI collection; the API reads processed data.</li>
+      </ol>
+
+      <h2 id="pipeline-decisions">Design decisions</h2>
+      <h4>Kafka: five topics</h4>
+      <table>
+        <thead>
+          <tr><th>Topic</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>ingest.raw.posts</code></td><td>Articles, social posts, and videos</td></tr>
+          <tr><td><code>ingest.raw.comments</code></td><td>Comments and replies from every platform</td></tr>
+          <tr><td><code>pipeline.ai.input</code></td><td>Persisted posts and comments ready for AI</td></tr>
+          <tr><td><code>pipeline.ai.results</code></td><td>All completed AI results, routed by <code>content_type</code></td></tr>
+          <tr><td><code>ingest.dlq</code></td><td>Events that still fail after bounded retries</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Topics represent pipeline stage and entity shape, not source. A <code>source</code> field identifies
+        Reddit, YouTube, BBC, and others. Keep one AI input and one AI result topic until post and comment
+        workloads require different models, scaling, retention, or service-level objectives.
+      </p>
+
+      <h4>MongoDB: one database, six collections</h4>
+      <table>
+        <thead>
+          <tr><th>Collection</th><th>Responsibility</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>raw_posts</code></td><td>Original articles, posts, and videos</td></tr>
+          <tr><td><code>raw_comments</code></td><td>Original comments and reply relationships</td></tr>
+          <tr><td><code>ai_posts</code></td><td>Post-level ranking, summaries, sentiment, tags, and metadata</td></tr>
+          <tr><td><code>ai_comments</code></td><td>Comment-level sentiment, topics, intent, and other analysis</td></tr>
+          <tr><td><code>history</code></td><td>Crawl/search parameters, progress, and completion status</td></tr>
+          <tr><td><code>company_profiles</code></td><td>Company data and aggregated AI cards</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Use the existing <code>pace_database</code>; do not create a database or collection per source.
+        Keep comments separate instead of embedding them in posts because the relationship is one-to-many
+        and comments need independent indexing, analysis, and retention.
+      </p>
+
+      <h2 id="pipeline-contract">Implementation contract</h2>
+      <h4>Event envelope</h4>
+      <pre><code>{
+  "event_id": "stable-id-for-deduplication",
+  "schema_version": 1,
+  "event_type": "raw_collected | raw_persisted | ai_completed",
+  "content_type": "post | comment",
+  "source": "reddit_playwright",
+  "external_id": "platform-content-id",
+  "parent_content_id": null,
+  "history_id": "crawl-or-search-run-id",
+  "occurred_at": "ISO-8601 UTC",
+  "payload": {}
+}</code></pre>
+      <ul class="compact">
+        <li>Use <code>external_id</code> from the platform; fall back to a canonical URL hash.</li>
+        <li>For comments, <code>parent_content_id</code> identifies the post/video; keep <code>parent_comment_id</code> in the payload for replies.</li>
+        <li>Use unique keys <code>(source, external_id)</code> for raw data and <code>(history_id, source, external_id)</code> for AI data.</li>
+        <li>Partition raw topics by <code>source:external_id</code> and AI topics by <code>content_type:external_id</code> to preserve per-entity ordering.</li>
+        <li>Use at-least-once delivery. Upsert with unique keys and commit Kafka offsets only after the MongoDB write or output publish succeeds.</li>
+        <li>Retry transient failures with backoff; send invalid or exhausted events to <code>ingest.dlq</code> with the error and original event.</li>
+      </ul>
+
+      <h4>Code ownership and migration</h4>
+      <ul class="compact">
+        <li><code>api/sources/*</code>: fetch, normalize, and publish only; no direct MongoDB writes.</li>
+        <li><code>persist.py</code>: evolve into idempotent raw and AI MongoDB writer services.</li>
+        <li><code>ranking_algorithm/*</code>: consume <code>pipeline.ai.input</code> and publish <code>pipeline.ai.results</code>.</li>
+        <li><code>views.py</code>: create/track <code>history</code> and query processed collections.</li>
+        <li>Migrate <code>raw_insights</code> to <code>raw_posts</code>, and split <code>ai_results</code> into <code>ai_posts</code> and <code>ai_comments</code>.</li>
+      </ul>
+
+      <div class="callout warn">
+        <h4>Operational rules</h4>
+        <ul>
+          <li>Kafka is a transport and replay buffer; MongoDB remains the system of record.</li>
+          <li>Do not acknowledge an event before its durable output succeeds.</li>
+          <li>Carry <code>event_id</code>, <code>history_id</code>, and correlation metadata through every stage.</li>
+          <li>Add schema changes through <code>schema_version</code>; consumers must reject unsupported versions to the DLQ.</li>
+        </ul>
+      </div>
+    </section>
+    </div>
+
+    <footer>
+      Living implementation log · Part 1 (sources) · Part 2 (data pipeline plan)
+    </footer>
+  </div>
+
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "base",
+      securityLevel: "loose",
+      themeVariables: {
+        background: "#fffdf9",
+        primaryColor: "#efe6d8",
+        primaryTextColor: "#2b2118",
+        primaryBorderColor: "#1f4e79",
+        secondaryColor: "#fffdf9",
+        secondaryTextColor: "#2b2118",
+        tertiaryColor: "#f7f1e8",
+        lineColor: "#6b5e52",
+        textColor: "#2b2118",
+        mainBkg: "#efe6d8",
+        nodeBorder: "#1f4e79",
+        clusterBkg: "#fffdf9",
+        titleColor: "#2b2118",
+        edgeLabelBackground: "#fffdf9",
+      },
+      flowchart: { curve: "basis", htmlLabels: true },
+    });
+  </script>
+</body>
+</html>

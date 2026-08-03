@@ -1,0 +1,17 @@
+<svg width="140" height="36" viewBox="0 0 140 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0)">
+<!-- Robotic icon with red circles -->
+<circle cx="18" cy="9" r="4" fill="#E11D2E"/>
+<circle cx="18" cy="18" r="6" fill="#E11D2E"/>
+<circle cx="18" cy="27" r="4" fill="#E11D2E"/>
+<path d="M14 18h-3M22 18h3M18 13v-2M18 23v2" stroke="#E11D2E" stroke-width="2" stroke-linecap="round"/>
+<!-- Robotic text -->
+<text x="36" y="18" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#000000">Robotic</text>
+<text x="36" y="30" font-family="Arial, sans-serif" font-size="14" font-weight="400" fill="#000000">marketer</text>
+</g>
+<defs>
+<clipPath id="clip0">
+<rect width="140" height="36" fill="white"/>
+</clipPath>
+</defs>
+</svg>

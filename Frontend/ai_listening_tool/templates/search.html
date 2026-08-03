@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div id="rmtool">
+  <!-- Header (empty to keep sticky space) -->
+  <header class="rm-header">
+    <div class="rm-header-content"></div>
+  </header>
+
+  <section class="rm-hero-wrap">
+    <div class="rm-hero-card">
+      <!-- Topbar inside white card -->
+      <div class="rm-home-topbar">
+        <a href="{% url 'listening_tool:search' %}" class="rm-header-logo">
+          <img src="{% static 'ai_listening_tool/img/robotic_marketer_logo.jpg' %}" alt="Robotic Marketer"
+            class="rm-logo-img">
+        </a>
+        <a class="rm-privacy" href="{% url 'listening_tool:history' %}">History</a>
+      </div>
+      <div class="rm-home-sep"></div>
+
+      <h1 class="rm-hero-title">Discover what conversations are<br>trending in your industry</h1>
+
+      <form id="searchForm" method="get" class="rm-searchbar">
+        <input id="q" name="subject" type="text" required placeholder="Enter a topic, keyword or industry…">
+        <button type="submit" class="rm-btn rm-btn--primary">Search</button>
+        <span id="err" class="rm-error"></span>
+      </form>
+
+      <div class="rm-topics">
+        <div class="rm-topics-title">Top Topics</div>
+        <div class="rm-pills">
+          <span class="rm-loading">Loading topics...</span>
+        </div>
+      </div>
+
+      <hr class="rm-rule">
+      <p class="rm-powered">All Topics Powered by Robotic Marketer®</p>
+    </div>
+  </section>
+
+  <!-- Content Grid -->
+  <section class="rm-grid">
+    <article class="rm-card rm-card-fixed-height" id="trendingTopicsCard">
+      <h3 class="rm-card-title">Trending Topics</h3>
+      <div class="rm-card-content">
+        <ul class="rm-list" id="trendingTopicsList" style="padding-left: 20px;">
+          <li class="rm-loading">Loading trending topics...</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="rm-card rm-card-fixed-height" id="competitorsCard">
+      <h3 class="rm-card-title">Competitors</h3>
+      <div class="rm-card-content">
+        <ul class="rm-list" id="competitorsList" style="padding-left: 20px;">
+          <li class="rm-loading">Loading competitors...</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="rm-card rm-card-fixed-height" id="backlinksCard">
+      <h3 class="rm-card-title">Backlinks</h3>
+      <div class="rm-card-content">
+        <ul class="rm-list rm-list--links" id="backlinksList">
+          <li class="rm-loading">Loading backlinks...</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="rm-card rm-card-fixed-height">
+      <h3 class="rm-card-title">Influencers</h3>
+      <div class="rm-card-content">
+        <div class="rm-empty">Coming Soon...</div>
+      </div>
+    </article>
+
+    <article class="rm-card rm-card-fixed-height" id="newsFeedCard">
+      <h3 class="rm-card-title">News Feed</h3>
+      <div class="rm-card-content">
+        <ul class="rm-news" id="newsFeedList">
+          <li class="rm-loading">Loading news feed...</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="rm-card rm-card-fixed-height" id="ideasCard">
+      <h3 class="rm-card-title">Ideas</h3>
+      <div class="rm-card-content">
+        <ul class="rm-news" id="ideasList">
+          <li class="rm-loading">Loading ideas...</li>
+        </ul>
+      </div>
+    </article>
+  </section>
+</div>
+
+<style>
+  /* Fixed height cards with scrolling for search page */
+  .rm-card-fixed-height {
+    height: 280px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .rm-card-fixed-height .rm-card-title {
+    flex-shrink: 0;
+    margin-bottom: 16px;
+  }
+
+  .rm-card-fixed-height .rm-card-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  /* Ensure lists and content don't add extra margins that break the layout */
+  .rm-card-fixed-height .rm-card-content > ul,
+  .rm-card-fixed-height .rm-card-content > div {
+    margin: 0;
+  }
+
+  /* Add padding to scrollable content for better spacing */
+  .rm-card-fixed-height .rm-card-content {
+    padding-right: 4px;
+  }
+
+  /* Style the scrollbar for better appearance (webkit browsers) */
+  .rm-card-fixed-height .rm-card-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .rm-card-fixed-height .rm-card-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .rm-card-fixed-height .rm-card-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+
+  .rm-card-fixed-height .rm-card-content::-webkit-scrollbar-thumb:hover {
+    background: #999;
+  }
+</style>
+{% endblock %}
+
+{% block pagescripts %}
+<script type="module" src="{% static 'ai_listening_tool/js/search.js' %}"></script>
+{% endblock %}

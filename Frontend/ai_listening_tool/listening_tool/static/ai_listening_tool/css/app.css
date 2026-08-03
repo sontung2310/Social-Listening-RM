@@ -1,0 +1,148 @@
+/* ==== RM Tool UI ==== */
+:root{
+  --rm-bg:#f5f6f8;
+  --rm-card:#ffffff;
+  --rm-border:#e5e7eb;
+  --rm-text:#111827;
+  --rm-muted:#6b7280;
+  --rm-red:#e11d2e;
+  --rm-red-600:#dc2626;
+  --rm-pill:#f9fafb;
+}
+
+#rmtool *{box-sizing:border-box}
+#rmtool{color:var(--rm-text); font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";}
+#rmtool a{color:inherit;text-decoration:none}
+#rmtool img{max-width:100%;display:block}
+
+/* Hero */
+#rmtool .rm-hero-wrap{background:var(--rm-bg); padding:28px 16px}
+#rmtool .rm-hero-card{
+  max-width:980px;margin:0 auto;background:var(--rm-card);
+  border:1px solid var(--rm-border); border-radius:10px; padding:22px;
+  box-shadow:0 8px 18px rgba(16,24,40,.04);
+}
+#rmtool .rm-hero-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding-bottom:10px; margin-bottom:14px; border-bottom:1px solid var(--rm-border);
+}
+#rmtool .rm-logo{height:28px}
+#rmtool .rm-privacy{font-size:12px; color:var(--rm-muted)}
+#rmtool .rm-hero-title{
+  margin:8px 0 16px; text-align:center; font-weight:700; font-size:24px; line-height:1.25;
+}
+
+/* Search bar */
+#rmtool .rm-searchbar{
+  display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:6px auto 14px; max-width:820px;
+}
+#rmtool .rm-searchbar input{
+  height:40px; padding:0 12px; border:1px solid var(--rm-border); border-radius:8px; outline:none; min-width:240px;
+}
+#rmtool .rm-searchbar input[type="number"]{min-width:120px; text-align:center}
+#rmtool .rm-btn{height:40px; padding:0 16px; border-radius:8px; border:1px solid var(--rm-border); background:var(--rm-card)}
+#rmtool .rm-btn--primary{background:var(--rm-red); border-color:var(--rm-red); color:#fff; font-weight:600}
+#rmtool .rm-btn--primary:hover{background:var(--rm-red-600)}
+#rmtool .rm-error{display:inline-block; color:var(--rm-red-600); font-size:12px; margin-left:6px}
+
+/* Top topics (pills) */
+#rmtool .rm-topics{margin-top:6px}
+#rmtool .rm-topics-title{ text-align:center; color:var(--rm-muted); font-size:12px; margin:8px 0}
+#rmtool .rm-pills{display:flex; flex-wrap:wrap; gap:10px; justify-content:center}
+#rmtool .rm-pill{
+  padding:6px 14px; border:1px solid var(--rm-border); background:var(--rm-pill);
+  border-radius:999px; font-size:12px;
+}
+#rmtool .rm-pill--active{background:var(--rm-red); border-color:var(--rm-red); color:#fff}
+#rmtool .rm-rule{border:none; border-top:1px solid var(--rm-border); margin:14px 0}
+#rmtool .rm-powered{color:var(--rm-muted); text-align:center; font-size:12px}
+
+/* Grid of content cards */
+#rmtool .rm-grid{
+  max-width:1100px; margin:18px auto; padding:0 16px;
+  display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:18px;
+}
+@media (max-width: 1024px){ #rmtool .rm-grid{grid-template-columns:repeat(2, minmax(0,1fr))} }
+@media (max-width: 640px){ #rmtool .rm-grid{grid-template-columns:1fr} }
+
+#rmtool .rm-card{
+  background:var(--rm-card); border:1px solid var(--rm-border); border-radius:10px; padding:14px;
+  box-shadow:0 6px 14px rgba(16,24,40,.04);
+}
+#rmtool .rm-card-title{
+  font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--rm-muted);
+  padding-bottom:8px; margin-bottom:8px; border-bottom:1px solid var(--rm-border);
+}
+
+#rmtool .rm-list{list-style:none; margin:0; padding:0}
+#rmtool .rm-list li{padding:6px 0}
+#rmtool .rm-list--links a{color:#374151; text-decoration:underline}
+#rmtool .rm-list--links a:hover{color:#111827}
+
+#rmtool .rm-cols-2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+@media (max-width:640px){ #rmtool .rm-cols-2{grid-template-columns:1fr} }
+
+#rmtool .rm-news{list-style:none; margin:0; padding:0}
+#rmtool .rm-news li{padding:8px 0}
+#rmtool .rm-news strong{display:block; margin-bottom:4px}
+
+#rmtool .rm-empty{color:var(--rm-muted); text-align:center; padding:20px 0}
+
+
+/* === Overrides to match PDF UI exactly === */
+#rmtool .rm-hero-card{max-width:980px}
+#rmtool .rm-hero-title{font-weight:600; font-size:22px; line-height:1.2; text-align:center; margin-top:8px}
+#rmtool .rm-hero-form{display:flex; gap:10px; justify-content:center; align-items:center; margin-top:8px}
+#rmtool .rm-hero-form .rm-input{width:360px; height:32px; padding:6px 10px}
+#rmtool .rm-hero-form .rm-select{width:120px; height:32px; padding:6px 10px}
+#rmtool .rm-hero-form .rm-btn{height:32px; padding:0 16px}
+
+#rmtool .rm-topics-bar{margin-top:14px; text-align:center}
+#rmtool .rm-topics-label{display:block; font-size:12px; color:#6b7280; margin-bottom:8px}
+#rmtool .rm-pills{display:flex; gap:10px; justify-content:center}
+#rmtool .rm-pill{background:#f9fafb; border:1px solid #e5e7eb; padding:6px 12px; border-radius:999px; font-size:12px}
+
+#rmtool .rm-sections{max-width:980px; margin:24px auto; display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px}
+#rmtool .rm-card{border:1px solid #e5e7eb; border-radius:6px; background:#fff; padding:0}
+#rmtool .rm-card .rm-card-title{font-size:12px; font-weight:600; padding:10px 12px; border-bottom:1px solid #e5e7eb}
+#rmtool .rm-card .rm-card-body{padding:10px 12px}
+#rmtool .rm-card .rm-list li{padding:6px 0; font-size:12px}
+#rmtool .rm-card .rm-news li{padding:8px 0; font-size:12px}
+
+/* width + layout */
+#rmtool .rm-hero-card{max-width:1200px; width:100%}
+#rmtool .rm-sections{max-width:1200px; width:100%}
+
+/* larger single search field */
+#rmtool .rm-hero-form{display:flex; gap:12px; justify-content:center}
+#rmtool .rm-hero-form .rm-input{width:640px; height:36px; padding:8px 12px}
+#rmtool .rm-hero-form .rm-btn{height:36px; padding:0 18px}
+
+/* Equal heights for all cards + scroll for overflow */
+#rmtool .rm-sections{grid-template-columns:repeat(3,1fr); gap:18px}
+#rmtool .rm-card{
+  height:340px;                 /* set the common height */
+  display:flex; flex-direction:column;
+}
+#rmtool .rm-card .rm-card-title{
+  padding:12px 16px; border-bottom:1px solid var(--rm-border);
+}
+
+/* make the content area fill and scroll if too long */
+#rmtool .rm-card > .rm-list,
+#rmtool .rm-card > .rm-news{
+  flex:1; overflow:auto; padding:12px 16px;
+}
+
+/* mobile: let cards grow naturally */
+@media (max-width:1024px){
+  #rmtool .rm-card{height:auto}
+  #rmtool .rm-card > .rm-list,
+  #rmtool .rm-card > .rm-news{overflow:visible}
+}
+
+
+@media (max-width:1024px){
+  #rmtool .rm-sections{grid-template-columns:1fr; gap:12px; padding:0 12px}
+  #rmtool .rm-hero-card{margin:0 12px}
+}

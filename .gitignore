@@ -1,0 +1,74 @@
+# OS / editor
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+
+# Speckit / local agent tooling (optional local-only)
+# Keep .specify if you want shared specs; uncomment to ignore:
+# .specify/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+source/
+
+# Django / local runtime data
+*.sqlite3
+db.sqlite3
+db_*.sqlite3
+staticfiles/
+media/
+local_settings.py
+
+# Secrets & credentials (keep *-example.env / *.example)
+.env
+.env.*
+!.env.example
+*.env
+!*.example.env
+!*_example.env
+!*example*.env
+Backend/ai/AI.env
+Backend/credentials/backend.env
+**/credentials/*.env
+!**/credentials/*example*.env
+!**/credentials/*_example.env
+
+# Logs & temp
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+
+# Node (if added later)
+node_modules/
+npm-debug.log*
+yarn-error.log*
