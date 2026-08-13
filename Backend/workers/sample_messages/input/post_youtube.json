@@ -1,0 +1,29 @@
+{
+  "event_id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  "schema_version": 1,
+  "event_type": "raw_collected",
+  "content_type": "post",
+  "source": "youtube",
+  "external_id": "ytSimVideoAI001",
+  "parent_content_id": null,
+  "history_id": "task-sim-yt-post-001",
+  "occurred_at": "2026-08-03T05:01:00Z",
+  "payload": {
+    "post_id": "youtube:ytSimVideoAI001",
+    "source": "youtube",
+    "url": "https://www.youtube.com/watch?v=ytSimVideoAI001",
+    "title": "Evaluating LLM answers for marketing search — what actually works",
+    "text": "In this video we walk through grounding, citation checks, and human review loops for LLM answers in marketing search experiences. We compare three evaluation rubrics teams use before shipping AI answers to customers. The key takeaway: measure hallucination rate and source coverage, not just click-through. Includes a demo checklist you can copy into your QA process.",
+    "text_html": "",
+    "author": "Search Lab Channel",
+    "channel_id": "UCsimSearchLab",
+    "published_ts": 1722011000,
+    "crawled_at": "2026-08-03T05:00:30Z",
+    "tags": ["AI", "marketing", "LLM", "search"],
+    "engagement": {
+      "views": 15400,
+      "likes": 890,
+      "comments": 120
+    }
+  }
+}

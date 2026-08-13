@@ -1,0 +1,75 @@
+{
+  "source": "newsapi",
+  "external_id": "a1b2c3d4e5f60718",
+  "event_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "history_id": "task-sim-news-001",
+  "content_type": "post",
+  "url": "https://www.reuters.com/technology/marketers-turn-to-agentic-ai-campaign-planning-2026-08-02/",
+  "title": "Marketers turn to agentic AI for campaign planning",
+  "text": "Major brands are piloting agentic AI tools that draft media plans and audience segments in minutes. Early adopters say the biggest gains come from faster brief cycles, not fully automated buys. Analysts caution that governance and citation checks remain the main blockers to wider rollout.",
+  "author": "Jane Rivera",
+  "published_ts": 1722592800,
+  "crawled_at": "2026-08-03T05:09:40Z",
+  "engagement": null,
+  "parent_content_id": null,
+  "payload": {
+    "post_id": "newsapi:a1b2c3d4e5f60718",
+    "source": "newsapi",
+    "url": "https://www.reuters.com/technology/marketers-turn-to-agentic-ai-campaign-planning-2026-08-02/",
+    "title": "Marketers turn to agentic AI for campaign planning",
+    "text": "Major brands are piloting agentic AI tools that draft media plans and audience segments in minutes. Early adopters say the biggest gains come from faster brief cycles, not fully automated buys. Analysts caution that governance and citation checks remain the main blockers to wider rollout.",
+    "text_html": "",
+    "author": "Jane Rivera",
+    "published_ts": 1722592800,
+    "crawled_at": "2026-08-03T05:09:40Z",
+    "engagement": null
+  },
+  "sentiment": {
+    "label": "neutral",
+    "score": 0.58
+  },
+  "topics": [
+    "News"
+  ],
+  "topic_confidence": 0.38,
+  "keywords": [
+    {
+      "term": "major",
+      "score": 0.0303
+    },
+    {
+      "term": "brands",
+      "score": 0.0303
+    },
+    {
+      "term": "piloting",
+      "score": 0.0303
+    },
+    {
+      "term": "agentic",
+      "score": 0.0303
+    },
+    {
+      "term": "tools",
+      "score": 0.0303
+    },
+    {
+      "term": "draft",
+      "score": 0.0303
+    },
+    {
+      "term": "media",
+      "score": 0.0303
+    },
+    {
+      "term": "plans",
+      "score": 0.0303
+    }
+  ],
+  "summary": "Major brands are piloting agentic AI tools that draft media plans and audience segments in minutes. Early adopters say the biggest gains come from faster brief cycles, not fully automated buys.",
+  "nlp_meta": {
+    "provider": "openai",
+    "model": "gpt-5-nano"
+  },
+  "processed_at": "2026-08-06T16:14:21.833893+10:00"
+}

@@ -1,0 +1,71 @@
+{
+  "source": "bbc_rss",
+  "external_id": "bbc-sim-ai-marketing-001",
+  "event_id": "12121212-1212-4121-8121-121212121212",
+  "history_id": "task-sim-rss-001",
+  "content_type": "post",
+  "url": "https://www.bbc.com/news/articles/sim-ai-marketing-briefs-001",
+  "title": "AI-written marketing briefs face new industry review rules",
+  "text": "Industry groups are drafting review rules for AI-generated marketing briefs after several campaigns published claims without sources. The proposed guidelines ask teams to keep citation logs and require editorial sign-off before paid media launches. Experts say the rules aim to slow reckless automation without banning useful drafting tools.",
+  "author": "BBC News",
+  "published_ts": 1722420000,
+  "crawled_at": "2026-08-03T05:11:50Z",
+  "engagement": {
+    "score": null,
+    "num_comments": null,
+    "upvote_ratio": null
+  },
+  "parent_content_id": null,
+  "payload": {
+    "post_id": "bbc_rss:bbc-sim-ai-marketing-001",
+    "source": "bbc_rss",
+    "url": "https://www.bbc.com/news/articles/sim-ai-marketing-briefs-001",
+    "title": "AI-written marketing briefs face new industry review rules",
+    "text": "Industry groups are drafting review rules for AI-generated marketing briefs after several campaigns published claims without sources. The proposed guidelines ask teams to keep citation logs and require editorial sign-off before paid media launches. Experts say the rules aim to slow reckless automation without banning useful drafting tools.",
+    "text_html": "<p>Industry groups are drafting review rules for AI-generated marketing briefs after several campaigns published claims without sources. The proposed guidelines ask teams to keep citation logs and require editorial sign-off before paid media launches.</p>",
+    "author": "BBC News",
+    "published_ts": 1722420000,
+    "crawled_at": "2026-08-03T05:11:50Z",
+    "engagement": {
+      "score": null,
+      "num_comments": null,
+      "upvote_ratio": null
+    }
+  },
+  "sentiment": {
+    "label": "neutral",
+    "score": 0.6
+  },
+  "topics": [
+    "News"
+  ],
+  "topic_confidence": 0.6,
+  "keywords": [
+    {
+      "term": "ai-generated marketing briefs",
+      "score": 0.92
+    },
+    {
+      "term": "citation logs",
+      "score": 0.8
+    },
+    {
+      "term": "editorial sign-off",
+      "score": 0.78
+    },
+    {
+      "term": "paid media launches",
+      "score": 0.75
+    },
+    {
+      "term": "reckless automation",
+      "score": 0.7
+    }
+  ],
+  "summary": "Industry groups draft rules for AI-generated marketing briefs, requiring citations and editorial sign-off to slow reckless automation without banning drafting tools.",
+  "nlp_meta": {
+    "provider": "openai",
+    "model": "gpt-5-nano"
+  },
+  "processed_at": "2026-08-06T16:14:23.864794+10:00"
+}

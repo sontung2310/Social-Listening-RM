@@ -1,0 +1,74 @@
+{
+  "source": "x_playwright",
+  "external_id": "1890123456789012345",
+  "event_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "history_id": "task-sim-x-001",
+  "content_type": "post",
+  "url": "https://x.com/growthmarketer/status/1890123456789012345",
+  "title": "Agentic AI for campaign briefs",
+  "text": "We just shipped an agentic AI brief builder. It drafts audience hypotheses, channel mixes, and KPI guesses in under a minute. Still needs a human editor for brand voice — but first drafts are no longer the bottleneck. Curious how others review AI-generated briefs before media buy.",
+  "author": "@growthmarketer",
+  "published_ts": 1722010000,
+  "crawled_at": "2026-08-03T04:59:40Z",
+  "engagement": {
+    "likes": 42,
+    "retweets": 11,
+    "comments": 8,
+    "views": 3200
+  },
+  "parent_content_id": null,
+  "payload": {
+    "post_id": "x_playwright:1890123456789012345",
+    "source": "x_playwright",
+    "url": "https://x.com/growthmarketer/status/1890123456789012345",
+    "title": "Agentic AI for campaign briefs",
+    "text": "We just shipped an agentic AI brief builder. It drafts audience hypotheses, channel mixes, and KPI guesses in under a minute. Still needs a human editor for brand voice — but first drafts are no longer the bottleneck. Curious how others review AI-generated briefs before media buy.",
+    "text_html": "",
+    "author": "@growthmarketer",
+    "published_ts": 1722010000,
+    "crawled_at": "2026-08-03T04:59:40Z",
+    "domain": "x.com",
+    "engagement": {
+      "likes": 42,
+      "retweets": 11,
+      "comments": 8,
+      "views": 3200
+    }
+  },
+  "sentiment": {
+    "label": "positive",
+    "score": 0.65
+  },
+  "topics": [
+    "Product"
+  ],
+  "topic_confidence": 0.6,
+  "keywords": [
+    {
+      "term": "agentic ai brief",
+      "score": 0.88
+    },
+    {
+      "term": "audience hypotheses",
+      "score": 0.8
+    },
+    {
+      "term": "channel mixes",
+      "score": 0.78
+    },
+    {
+      "term": "kpi guesses",
+      "score": 0.75
+    },
+    {
+      "term": "human editor",
+      "score": 0.7
+    }
+  ],
+  "summary": "A new AI brief builder drafts audience hypotheses, channel mixes, and KPI guesses quickly, but requires human review for brand voice before media buy.",
+  "nlp_meta": {
+    "provider": "openai",
+    "model": "gpt-5-nano"
+  },
+  "processed_at": "2026-08-06T16:14:25.652224+10:00"
+}

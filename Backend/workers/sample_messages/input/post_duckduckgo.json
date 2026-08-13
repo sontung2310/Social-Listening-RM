@@ -1,0 +1,23 @@
+{
+  "event_id": "ffffffff-ffff-4fff-8fff-ffffffffffff",
+  "schema_version": 1,
+  "event_type": "raw_collected",
+  "content_type": "post",
+  "source": "duckduckgo_web",
+  "external_id": "9f8e7d6c5b4a3210",
+  "parent_content_id": null,
+  "history_id": "task-sim-ddg-001",
+  "occurred_at": "2026-08-03T05:11:00Z",
+  "payload": {
+    "post_id": "ddg_web:9f8e7d6c5b4a3210",
+    "source": "duckduckgo_web",
+    "url": "https://www.example.com/guides/grounded-llm-search-for-marketing",
+    "title": "Grounded LLM search for marketing teams: a practical checklist",
+    "text": "Web search for marketing answers is shifting from keyword pages to LLM replies with citations. This guide covers how to require source coverage, ban invented stats, and keep a human editor in the loop before publishing. Teams that measured hallucination rate saw support tickets drop within two sprints.",
+    "text_html": "",
+    "author": "Search Ops Desk",
+    "published_ts": 1722506400,
+    "crawled_at": "2026-08-03T05:10:45Z",
+    "engagement": null
+  }
+}

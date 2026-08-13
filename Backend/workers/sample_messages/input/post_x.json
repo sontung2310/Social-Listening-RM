@@ -1,0 +1,29 @@
+{
+  "event_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "schema_version": 1,
+  "event_type": "raw_collected",
+  "content_type": "post",
+  "source": "x_playwright",
+  "external_id": "1890123456789012345",
+  "parent_content_id": null,
+  "history_id": "task-sim-x-001",
+  "occurred_at": "2026-08-03T05:00:00Z",
+  "payload": {
+    "post_id": "x_playwright:1890123456789012345",
+    "source": "x_playwright",
+    "url": "https://x.com/growthmarketer/status/1890123456789012345",
+    "title": "Agentic AI for campaign briefs",
+    "text": "We just shipped an agentic AI brief builder. It drafts audience hypotheses, channel mixes, and KPI guesses in under a minute. Still needs a human editor for brand voice — but first drafts are no longer the bottleneck. Curious how others review AI-generated briefs before media buy.",
+    "text_html": "",
+    "author": "@growthmarketer",
+    "published_ts": 1722010000,
+    "crawled_at": "2026-08-03T04:59:40Z",
+    "domain": "x.com",
+    "engagement": {
+      "likes": 42,
+      "retweets": 11,
+      "comments": 8,
+      "views": 3200
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "event_id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+  "schema_version": 1,
+  "event_type": "raw_collected",
+  "content_type": "comment",
+  "source": "youtube",
+  "external_id": "UgxSimYtComment002",
+  "parent_content_id": "ytSimVideoAI001",
+  "history_id": "task-sim-yt-cmt-001",
+  "occurred_at": "2026-08-03T05:03:00Z",
+  "payload": {
+    "comment_id": "UgxSimYtComment002",
+    "source": "youtube",
+    "parent_content_id": "ytSimVideoAI001",
+    "parent_content_url": "https://www.youtube.com/watch?v=ytSimVideoAI001",
+    "author": "Product Ops Lead",
+    "author_channel_id": "UCsimviewer002",
+    "text": "The checklist at 12:40 is gold. We started tracking source coverage per answer and found half our LLM replies had no citation at all. Fixing that alone cut support escalations. Would love a template spreadsheet if you share one.",
+    "like_count": 56,
+    "reply_count": 3,
+    "parent_comment_id": null,
+    "published_ts": 1722013000,
+    "crawled_at": "2026-08-03T05:02:45Z"
+  }
+}

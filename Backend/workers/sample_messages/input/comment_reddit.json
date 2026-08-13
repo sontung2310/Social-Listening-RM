@@ -1,0 +1,25 @@
+{
+  "event_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  "schema_version": 1,
+  "event_type": "raw_collected",
+  "content_type": "comment",
+  "source": "reddit_playwright",
+  "external_id": "t1_simredditcmt01",
+  "parent_content_id": "1abcxyz",
+  "history_id": "task-sim-reddit-cmt-001",
+  "occurred_at": "2026-08-03T05:02:00Z",
+  "payload": {
+    "comment_id": "t1_simredditcmt01",
+    "source": "reddit_playwright",
+    "parent_content_id": "1abcxyz",
+    "parent_content_url": "https://www.reddit.com/r/marketing/comments/1abcxyz/ai_tools_that_actually_help/",
+    "author": "u/seo_practitioner",
+    "text": "Agree on the brief + glossary approach. We also ban the model from inventing stats — every claim must cite an internal doc or public URL. Without that, AI drafts quietly invent conversion numbers and ruin trust with stakeholders.",
+    "like_count": 23,
+    "reply_count": 4,
+    "parent_comment_id": null,
+    "published_ts": 1722012000,
+    "crawled_at": "2026-08-03T05:01:40Z",
+    "subreddit": "marketing"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "event_id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+  "schema_version": 1,
+  "event_type": "raw_collected",
+  "content_type": "post",
+  "source": "newsapi",
+  "external_id": "a1b2c3d4e5f60718",
+  "parent_content_id": null,
+  "history_id": "task-sim-news-001",
+  "occurred_at": "2026-08-03T05:10:00Z",
+  "payload": {
+    "post_id": "newsapi:a1b2c3d4e5f60718",
+    "source": "newsapi",
+    "url": "https://www.reuters.com/technology/marketers-turn-to-agentic-ai-campaign-planning-2026-08-02/",
+    "title": "Marketers turn to agentic AI for campaign planning",
+    "text": "Major brands are piloting agentic AI tools that draft media plans and audience segments in minutes. Early adopters say the biggest gains come from faster brief cycles, not fully automated buys. Analysts caution that governance and citation checks remain the main blockers to wider rollout.",
+    "text_html": "",
+    "author": "Jane Rivera",
+    "published_ts": 1722592800,
+    "crawled_at": "2026-08-03T05:09:40Z",
+    "engagement": null
+  }
+}

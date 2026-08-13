@@ -78,6 +78,7 @@ Start **Backend first**, then **Frontend**. Use two terminals with the shared ve
 | Service | Working directory | Command | URL |
 |---------|-------------------|---------|-----|
 | Backend (Flask) | `code/Backend` | `python app.py 8000` | `http://127.0.0.1:8000/api/health/` |
+| AI worker (sim queue) | `code/Backend` | `python -m workers --once` | Writes `ai_posts` / `ai_comments` |
 | Frontend (Django) | `code/Frontend` | `python manage.py runserver 8001` | `http://127.0.0.1:8001/tool/` |
 
 ```bash
@@ -85,12 +86,17 @@ Start **Backend first**, then **Frontend**. Use two terminals with the shared ve
 cd code/Backend
 python app.py 8000
 
-# Terminal 2 — Frontend
+# Terminal 2 — AI worker (simulated crawl.ai.queue sample_messages)
+cd code/Backend
+python -m workers --once
+# or: python -m workers   # long-running
+
+# Terminal 3 — Frontend
 cd code/Frontend
 python manage.py runserver 8001
 ```
 
-Kafka was removed from this repo. Queuing uses **SQS** per `SYSTEM_ARCHITECTURE.md` (implementation pending — see `FUTURE_WORK.md`).
+Kafka was removed from this repo. AI worker currently uses **`AI_QUEUE_BACKEND=sim`** (fixture messages). Real SQS wiring is pending — see `FUTURE_WORK.md` and `SYSTEM_ARCHITECTURE.md`.
 
 ### Frontend routes
 
@@ -125,7 +131,8 @@ code/
 │   │   └── views.py                           # Flask route handlers
 │   ├── db/                                    # MongoDB helpers
 │   │   ├── __init__.py
-│   │   └── persist.py                         # History, company profiles, AI results writes
+│   │   └── persist.py                         # History, company profiles, legacy AI helpers
+│   │   └── ai_store.py                        # Upserts for ai_posts / ai_comments
 │   ├── ai/                                    # AI/ML modules — ranking, summarization, collection cards
 │   │   ├── __init__.py
 │   │   ├── AI.env                             # AI credentials (MONGO_URI, GROQ_API_KEY)
@@ -136,8 +143,16 @@ code/
 │   │   ├── Topic_detection/                   # Topic extraction from article text
 │   │   ├── README_CREDENTIALS.md
 │   │   └── requirements.txt
-│   ├── workers/                               # Placeholder for future SQS AI consumer
-│   │   └── README.md
+│   ├── workers/                               # AI queue consumer (sim SQS → NLP → ai_posts/ai_comments)
+│   │   ├── README.md
+│   │   ├── queue.py                           # SimulatedQueue (receive/delete)
+│   │   ├── events.py                          # raw_collected validation
+│   │   ├── process.py                         # NLP + upsert
+│   │   ├── consumer.py                        # Loop / --once
+│   │   ├── sample_io.py                       # Write sample_messages/output
+│   │   └── sample_messages/
+│   │       ├── input/                         # DCT-shaped queue samples
+│   │       └── output/                        # AI-enriched results for inspection
 │   ├── credentials/
 │   │   ├── backend_example.env                # Template for backend.env
 │   │   └── backend.env                        # Backend API keys and MongoDB URI (not committed)

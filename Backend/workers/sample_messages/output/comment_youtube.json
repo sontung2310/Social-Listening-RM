@@ -1,0 +1,65 @@
+{
+  "source": "youtube",
+  "external_id": "UgxSimYtComment002",
+  "event_id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+  "history_id": "task-sim-yt-cmt-001",
+  "content_type": "comment",
+  "url": "https://www.youtube.com/watch?v=ytSimVideoAI001",
+  "title": "",
+  "text": "The checklist at 12:40 is gold. We started tracking source coverage per answer and found half our LLM replies had no citation at all. Fixing that alone cut support escalations. Would love a template spreadsheet if you share one.",
+  "author": "Product Ops Lead",
+  "published_ts": 1722013000,
+  "crawled_at": "2026-08-03T05:02:45Z",
+  "engagement": null,
+  "parent_content_id": "ytSimVideoAI001",
+  "payload": {
+    "comment_id": "UgxSimYtComment002",
+    "source": "youtube",
+    "parent_content_id": "ytSimVideoAI001",
+    "parent_content_url": "https://www.youtube.com/watch?v=ytSimVideoAI001",
+    "author": "Product Ops Lead",
+    "author_channel_id": "UCsimviewer002",
+    "text": "The checklist at 12:40 is gold. We started tracking source coverage per answer and found half our LLM replies had no citation at all. Fixing that alone cut support escalations. Would love a template spreadsheet if you share one.",
+    "like_count": 56,
+    "reply_count": 3,
+    "parent_comment_id": null,
+    "published_ts": 1722013000,
+    "crawled_at": "2026-08-03T05:02:45Z"
+  },
+  "sentiment": {
+    "label": "positive",
+    "score": 0.68
+  },
+  "topics": [
+    "Product"
+  ],
+  "topic_confidence": 0.62,
+  "keywords": [
+    {
+      "term": "checklist at 12:40",
+      "score": 0.8
+    },
+    {
+      "term": "source coverage",
+      "score": 0.75
+    },
+    {
+      "term": "llm replies",
+      "score": 0.7
+    },
+    {
+      "term": "citation",
+      "score": 0.65
+    },
+    {
+      "term": "support escalations",
+      "score": 0.6
+    }
+  ],
+  "summary": "A checklist highlights tracking source coverage in LLM replies and reducing support escalations by adding citations.",
+  "nlp_meta": {
+    "provider": "openai",
+    "model": "gpt-5-nano"
+  },
+  "processed_at": "2026-08-06T16:14:15.475546+10:00"
+}

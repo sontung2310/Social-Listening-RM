@@ -21,7 +21,13 @@ All credentials for the AI backend have been centralized in `AI.env` for easier 
      - Get from: https://console.groq.com/
      - Format: `gsk_xxxxxxxxxxxxxxxxxxxxx`
 
-3. **Verify Configuration**
+3. **NLP enrichment models / knobs**
+   Edit `enrichment/settings.py` (not `AI.env`) to switch models or tune:
+   - `NLP_BACKUP_MODEL` / `NLP_OPENAI_ONLY` / `NLP_PRIMARY_MODEL`
+   - `NLP_TIMEOUT_MS`, `NLP_SUMMARY_MIN_CHARS`, `NLP_LONG_CHARS`
+   API keys stay in `AI.env`.
+
+4. **Verify Configuration**
    The code will automatically load credentials from `AI.env` when running any AI module.
    If credentials are missing, you'll see a clear error message indicating which credential is not found.
 

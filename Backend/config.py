@@ -40,3 +40,17 @@ MONGODB_DBNAME = os.environ.get("MONGODB_DBNAME", "pace_database")
 # SERVER CONFIG
 HOST = os.environ.get("HOST", "127.0.0.1")
 PORT = int(os.environ.get("PORT", "8000"))
+
+# AI WORKER QUEUE — "sim" (fixtures) or "sqs" (real AWS)
+AI_QUEUE_BACKEND = os.environ.get("AI_QUEUE_BACKEND", "sim")
+AI_WORKER_MAX_MESSAGES = int(os.environ.get("AI_WORKER_MAX_MESSAGES", "20"))
+AI_WORKER_IDLE_SLEEP_SECONDS = float(os.environ.get("AI_WORKER_IDLE_SLEEP_SECONDS", "1"))
+
+# AWS / SQS
+AWS_ACCESS_KEY_ID = (os.environ.get("AWS_ACCESS_KEY_ID") or "").strip()
+AWS_SECRET_ACCESS_KEY = (os.environ.get("AWS_SECRET_ACCESS_KEY") or "").strip()
+AWS_REGION = (os.environ.get("AWS_REGION") or "ap-southeast-2").strip()
+SQS_COMMAND_QUEUE_URL = (os.environ.get("SQS_COMMAND_QUEUE_URL") or "").strip()
+SQS_AI_QUEUE_URL = (os.environ.get("SQS_AI_QUEUE_URL") or "").strip()
+SQS_DLQ_URL = (os.environ.get("SQS_DLQ_URL") or "").strip()
+SQS_WAIT_TIME_SECONDS = int(os.environ.get("SQS_WAIT_TIME_SECONDS", "20"))

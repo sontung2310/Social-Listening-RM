@@ -210,19 +210,20 @@ def _ai_runner(name: str):
 def health():
     return _j({"status": "ok", "version": "v1"}, 200)
 
+# Crawl Management API (SQS → Data-Crawler-Task) — see api/crawl.py
+from api.crawl import register_crawl_routes  # noqa: E402
+
+register_crawl_routes(api_bp)
+
 @api_bp.route("/search/", methods=["POST"])
 def search_posts():
-    """In-process crawl/search ingest was removed from Pace-Unit.
-
-    Crawl lives in Data-Crawler-Task. A Crawl Management API (SQS command queue)
-    is pending — see code/FUTURE_WORK.md.
-    """
+    """Legacy stub — use POST /api/crawl/ instead (UI wiring later)."""
     return _j(
         {
             "error": "not_implemented",
             "message": (
-                "Crawl/search ingest moved to Data-Crawler-Task; "
-                "Crawl Management API pending — see code/FUTURE_WORK.md"
+                "Use POST /api/crawl/ to enqueue a crawl via SQS. "
+                "Frontend wiring pending — see code/FUTURE_WORK.md"
             ),
         },
         501,

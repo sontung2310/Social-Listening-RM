@@ -1,0 +1,2 @@
+# AI-enriched outputs land here after `python -m workers --once`.
+# Each file mirrors the input sample name under ../input/.

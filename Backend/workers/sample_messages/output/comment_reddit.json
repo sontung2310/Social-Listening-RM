@@ -1,0 +1,69 @@
+{
+  "source": "reddit_playwright",
+  "external_id": "t1_simredditcmt01",
+  "event_id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  "history_id": "task-sim-reddit-cmt-001",
+  "content_type": "comment",
+  "url": "https://www.reddit.com/r/marketing/comments/1abcxyz/ai_tools_that_actually_help/",
+  "title": "",
+  "text": "Agree on the brief + glossary approach. We also ban the model from inventing stats — every claim must cite an internal doc or public URL. Without that, AI drafts quietly invent conversion numbers and ruin trust with stakeholders.",
+  "author": "u/seo_practitioner",
+  "published_ts": 1722012000,
+  "crawled_at": "2026-08-03T05:01:40Z",
+  "engagement": null,
+  "parent_content_id": "1abcxyz",
+  "payload": {
+    "comment_id": "t1_simredditcmt01",
+    "source": "reddit_playwright",
+    "parent_content_id": "1abcxyz",
+    "parent_content_url": "https://www.reddit.com/r/marketing/comments/1abcxyz/ai_tools_that_actually_help/",
+    "author": "u/seo_practitioner",
+    "text": "Agree on the brief + glossary approach. We also ban the model from inventing stats — every claim must cite an internal doc or public URL. Without that, AI drafts quietly invent conversion numbers and ruin trust with stakeholders.",
+    "like_count": 23,
+    "reply_count": 4,
+    "parent_comment_id": null,
+    "published_ts": 1722012000,
+    "crawled_at": "2026-08-03T05:01:40Z",
+    "subreddit": "marketing"
+  },
+  "sentiment": {
+    "label": "negative",
+    "score": 0.78
+  },
+  "topics": [
+    "Technology"
+  ],
+  "topic_confidence": 0.62,
+  "keywords": [
+    {
+      "term": "brief + glossary",
+      "score": 0.9
+    },
+    {
+      "term": "ban the model",
+      "score": 0.85
+    },
+    {
+      "term": "internal doc",
+      "score": 0.8
+    },
+    {
+      "term": "public url",
+      "score": 0.8
+    },
+    {
+      "term": "conversion numbers",
+      "score": 0.75
+    },
+    {
+      "term": "stakeholders",
+      "score": 0.7
+    }
+  ],
+  "summary": "A policy emphasizes citing internal or public sources for every claim and warns against unverified AI-generated conversion numbers threatening trust.",
+  "nlp_meta": {
+    "provider": "openai",
+    "model": "gpt-5-nano"
+  },
+  "processed_at": "2026-08-06T16:14:11.841102+10:00"
+}

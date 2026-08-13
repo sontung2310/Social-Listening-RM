@@ -6,10 +6,10 @@ Problems and follow-ups deferred from the Backend cleanup (crawl/Kafka removal +
 
 ### 1. Crawl Management API (replaces stubbed `POST /api/search/`)
 
-- [ ] Implement crawl job acceptance on Pace-Unit (e.g. `POST /crawl` or a successor to `/api/search/`).
-- [ ] Persist job metadata in `crawl_jobs`.
-- [ ] Publish commands to SQS `crawl.command.queue` for the local worker in **Data-Crawler-Task**.
-- [ ] Expose job status endpoints the dashboard can poll.
+- [x] Implement crawl job acceptance on Pace-Unit (`POST /api/crawl/`).
+- [x] Persist job metadata in `crawl_jobs`.
+- [x] Publish commands to SQS `social_listening_data_crawling` (`crawl.command.queue`) for **Data-Crawler-Task**.
+- [x] Expose job status endpoints the dashboard can poll (`GET /api/crawl/<job_id>/`).
 - [ ] Remove or permanently retire the current `501` stub on `POST /api/search/`.
 
 ### 2. Frontend new-search integration
@@ -20,14 +20,15 @@ Problems and follow-ups deferred from the Backend cleanup (crawl/Kafka removal +
 
 ### 3. AI worker pool (`workers/`)
 
-- [ ] Consume SQS `crawl.ai.queue` events published by Data-Crawler-Task after local raw upsert.
-- [ ] Run NLP / ranking via `ai/` (sentiment, topics, summarization, ranking).
-- [ ] Write enriched results to cloud Mongo (`ai_posts` / `ai_comments` or current `ai_results` model).
-- [ ] On failure, route to SQS DLQ; delete the AI queue message only after successful cloud save.
+- [x] **Simulated** consumer of `crawl.ai.queue` (`AI_QUEUE_BACKEND=sim` + `sample_messages/`) — see `code/Backend/workers/`
+- [x] Wire real AWS SQS receive/delete (`AI_QUEUE_BACKEND=sqs` → `SQS_AI_QUEUE_URL`)
+- [x] Run NLP via `ai/` (sentiment, topics, summarization) per message
+- [x] Write enriched results to cloud Mongo `ai_posts` / `ai_comments`
+- [x] On failure, leave message for AWS DLQ redrive; delete only after successful cloud save
 
 ### 4. Credential / config cleanup
 
-- [ ] Add AWS / SQS env vars for command queue, AI queue, and DLQ.
+- [x] Add AWS / SQS env vars for command queue, AI queue, and DLQ.
 - [ ] Confirm crawl-only API keys (Guardian, YouTube, Reddit, Playwright, etc.) live only in **Data-Crawler-Task**.
 - [ ] Keep Pace-Unit keys that the dashboard still needs (e.g. `SERPAPI_KEY`, `NEWSAPI_KEY`, Mongo, Groq).
 
