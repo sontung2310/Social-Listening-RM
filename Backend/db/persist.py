@@ -1,30 +1,32 @@
-from typing import Iterable, Tuple, List, Dict, Optional
+from typing import Any, Iterable, Tuple, List, Dict, Optional
 from datetime import datetime, timezone, timedelta
 from bson import ObjectId
 from pymongo import MongoClient, UpdateOne
 from pymongo.server_api import ServerApi
 import certifi
 
-from config import MONGODB_URI, MONGODB_DBNAME
+from config import ARTICLE_MONGODB_URI, ARTICLE_MONGODB_DBNAME
 
 _mongo_client = None
 _mongo_db = None
 
-def get_mongo_db():
-    """Return a cached MongoDB database handle using config.MONGODB_URI/DBNAME."""
+def get_mongo_db() -> Any:
+    """Return the cached article/AI MongoDB database handle."""
     global _mongo_client, _mongo_db
     if _mongo_db is not None:
         return _mongo_db
-    if not MONGODB_URI or not MONGODB_DBNAME:
-        raise RuntimeError("Mongo settings missing: MONGODB_URI / MONGODB_DBNAME")
+    if not ARTICLE_MONGODB_URI or not ARTICLE_MONGODB_DBNAME:
+        raise RuntimeError(
+            "Article Mongo settings missing: ARTICLE_MONGODB_URI / ARTICLE_MONGODB_DBNAME"
+        )
     _mongo_client = MongoClient(
-        MONGODB_URI,
+        ARTICLE_MONGODB_URI,
         server_api=ServerApi("1"),
         tlsCAFile=certifi.where(),
         serverSelectionTimeoutMS=10000,
         connectTimeoutMS=10000,
     )
-    _mongo_db = _mongo_client[MONGODB_DBNAME]
+    _mongo_db = _mongo_client[ARTICLE_MONGODB_DBNAME]
     return _mongo_db
 
 # HISTORY helpers 

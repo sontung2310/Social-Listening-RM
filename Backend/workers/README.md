@@ -1,7 +1,9 @@
 # Workers — AI queue consumer
 
-Consumes **`social_listening_crawling_response`** (architecture `crawl.ai.queue`):
-Data-Crawler-Task `raw_collected` events → NLP via `ai/` → cloud Mongo **`ai_posts`** / **`ai_comments`**.
+Consumes **`social_listening_crawling_response`** (architecture `crawl.ai.queue`) and routes:
+
+- Data-Crawler-Task existing `raw_collected` events → NLP via `ai/` → article MongoDB **`ai_posts`** / **`ai_comments`**.
+- Influencer results are not consumed here. DCT performs explicit dashboard export directly after discovery.
 
 ## Backends
 
@@ -43,5 +45,6 @@ Requires `MONGODB_URI` / `MONGODB_DBNAME` in `credentials/backend.env` for cloud
 
 Same as Data-Crawler-Task `events.py` → SQS body:
 
-- Envelope: `event_id`, `schema_version`, `event_type=raw_collected`, `content_type`, `source`, `external_id`, `history_id`, `payload`
+- Article envelope: `event_id`, `schema_version`, `event_type=raw_collected`, `content_type`, `source`, `external_id`, `history_id`, `payload`
+- No influencer response envelope is produced by the current workflow.
 - `payload`: adapter row from DCT `sources/` (`text`, `title`, `url`, …)

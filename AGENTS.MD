@@ -14,7 +14,7 @@ The Robotic Marketer AI Listening Tool is a **social listening** platform that s
 
 That document is the **source of truth** for the overall system design (AWS EC2 / Local Crawling Environment / AWS EC2) and the end-to-end sequence. Implementation must match it strictly — do not introduce alternate flows, queues, data stores, or environment splits that conflict with it. If the design must change, ask me for confirmation first; only after I explicitly accept may you update `SYSTEM_ARCHITECTURE.md`.
 
-Crawl execution lives in the sibling repo `Data-Crawler-Task`; this repo (`Pace-Unit`) deploys to a single AWS EC2 and owns the dashboard, crawl management API (pending), AI analysis, and related cloud services. Deferred work is listed in [`FUTURE_WORK.md`](./FUTURE_WORK.md).
+Crawl execution lives in the sibling repo `Data-Crawler-Task`; this repo (`Pace-Unit`) owns the dashboard, typed crawl-management API, response workers, AI analysis, and related cloud services. Deferred work is listed in [`FUTURE_WORK.md`](./FUTURE_WORK.md).
 
 ### Core capabilities
 
@@ -24,13 +24,25 @@ Crawl execution lives in the sibling repo `Data-Crawler-Task`; this repo (`Pace-
 - **Groq LLM features** — Groq API (`Backend/ai/collection_card/gpt.py`) powers company-aware collection cards: trending topics, news feed analysis, ideas, competitor detection, opportunities, and engaged links.
 - **Web interface** — Django frontend at `Frontend/` lets users search, filter, and view ranked results. Communicates with the Backend via `Frontend/ai_listening_tool/static/ai_listening_tool/js/config.js`.
 
-### Search / crawl flow (current vs target)
+### Crawl flow
 
-**Current:** `POST /api/search/` returns **501** (in-process crawl and Kafka were removed). See [`FUTURE_WORK.md`](./FUTURE_WORK.md).
+The current production-shaped flow is:
 
-**Target (architecture):** Dashboard → Crawl Management API → SQS `crawl.command.queue` → Data-Crawler-Task → local Mongo → SQS `crawl.ai.queue` → Pace-Unit AI workers → cloud Mongo → analytics UI.
+```text
+Dashboard/API or schedule trigger
+  → SQS crawl.command.queue
+  → Data-Crawler-Task
+  → SQS crawl.ai.queue
+  → Pace-Unit response worker
+  → Article MongoDB or separate Dashboard MongoDB
+```
 
-History / results / cards endpoints that read existing Mongo data still work.
+There are two typed pipelines:
+
+- `content_crawl` commands produce one or more `article_collected` events (`post` or `comment`). The response worker enriches them and stores them in `ai_posts` / `ai_comments` in the article database.
+- `influencer_discovery` commands are owned end-to-end by Data-Crawler-Task. Pace publishes the complete request and proxies status; no influencer response event is produced. Run the explicit DCT dashboard export after a successful task.
+
+`POST /api/search/` is a legacy 501 endpoint. New crawl requests must use `POST /api/crawl/`. History / results / cards endpoints that read existing Mongo data remain available.
 
 ---
 
@@ -65,38 +77,67 @@ pip install -r code/Frontend/requirements.txt
 
 ### Pre-run checklist
 
-1. Copy `code/Backend/credentials/backend_example.env` → `code/Backend/credentials/backend.env` and fill in API keys.
-2. Configure `code/Backend/ai/AI.env` with `MONGO_URI` and `GROQ_API_KEY`.
-3. Set `API_BASE` in `code/Frontend/ai_listening_tool/static/ai_listening_tool/js/config.js` to `http://127.0.0.1:8000/api`.
+1. Copy `code/Backend/credentials/backend_example.env` → `code/Backend/credentials/backend.env` and fill in API keys, AWS/SQS settings, article MongoDB, and dashboard MongoDB settings.
+2. Configure `code/Backend/ai/AI.env` with `MONGO_URI` and `GROQ_API_KEY` for legacy/card AI modules.
+3. Configure the sibling `Data-Crawler-Task/.env` with the same command/response SQS queues and its crawl credentials.
+4. Set `API_BASE` in `code/Frontend/ai_listening_tool/static/ai_listening_tool/js/config.js` to `http://127.0.0.1:8000/api`.
 
 ---
 
 ## Run commands
 
-Start **Backend first**, then **Frontend**. Use two terminals with the shared venv activated.
+Start the services below in separate terminals. The crawler and backend both use their repository virtual environments.
 
-| Service | Working directory | Command | URL |
-|---------|-------------------|---------|-----|
-| Backend (Flask) | `code/Backend` | `python app.py 8000` | `http://127.0.0.1:8000/api/health/` |
-| AI worker (sim queue) | `code/Backend` | `python -m workers --once` | Writes `ai_posts` / `ai_comments` |
-| Frontend (Django) | `code/Frontend` | `python manage.py runserver 8001` | `http://127.0.0.1:8001/tool/` |
+| Service | Working directory | Command | URL / purpose |
+|---------|-------------------|---------|---------------|
+| Data crawler | `Data-Crawler-Task` | `uvicorn app.main:app --host 127.0.0.1 --port 8001 --workers 1` | `http://127.0.0.1:8001/health`; starts command consumer |
+| Backend API | `code/Backend` | `python app.py 8000` | `http://127.0.0.1:8000/api/health/` |
+| Response worker | `code/Backend` | `AI_QUEUE_BACKEND=sqs python -m workers` | consumes article response events only |
+| Frontend (optional UI) | `code/Frontend` | `python manage.py runserver 8002` | `http://127.0.0.1:8002/tool/` |
 
 ```bash
-# Terminal 1 — Backend
+# Each terminal starts from the Pace-Unit repository root.
+
+# Terminal 1 — Data-Crawler-Task (starts its command SQS consumer)
+cd ../Data-Crawler-Task
+source .venv/bin/activate
+uvicorn app.main:app --host 127.0.0.1 --port 8001 --workers 1
+
+# Terminal 2 — Pace-Unit Backend API
+source .venv/bin/activate
 cd code/Backend
 python app.py 8000
 
-# Terminal 2 — AI worker (simulated crawl.ai.queue sample_messages)
+# Terminal 3 — Pace-Unit response worker
+source .venv/bin/activate
 cd code/Backend
-python -m workers --once
-# or: python -m workers   # long-running
+AI_QUEUE_BACKEND=sqs python -m workers
 
-# Terminal 3 — Frontend
+# Terminal 4 — optional Frontend
+source .venv/bin/activate
 cd code/Frontend
-python manage.py runserver 8001
+python manage.py runserver 8002
 ```
 
-Kafka was removed from this repo. AI worker currently uses **`AI_QUEUE_BACKEND=sim`** (fixture messages). Real SQS wiring is pending — see `FUTURE_WORK.md` and `SYSTEM_ARCHITECTURE.md`.
+For local fixture processing only, run `python -m workers --once` with the default `AI_QUEUE_BACKEND=sim`. Use `AI_QUEUE_BACKEND=sqs` for the complete pipeline. Kafka was removed from this repo.
+
+### Trigger a complete pipeline run
+
+Once the crawler, backend API, and response worker are running, either submit a persisted job through `POST /api/crawl/` or use the direct SQS trigger scripts. The scripts print their generated `job_id` and command; they do **not** create a `crawl_jobs` record.
+
+```bash
+# From Pace-Unit/code, with Pace-Unit/.venv activated
+python schedule_run/trigger_article_pipeline.py \
+  --query "Digital Marketing Trends" --source all --time-delta week --limit 20
+
+python schedule_run/trigger_influencer_pipeline.py \
+  --field "Marketing" --company-id company-123 --company-name "Marketing Eye" \
+  --company-domain marketingeye.com.au \
+  --company-summary "A marketing agency helping brands grow." \
+  --related-terms "SEO,content marketing" --limit 20
+```
+
+All influencer identity and topic fields are required. The same job ID is used as the DCT task ID; poll DCT for status and use its explicit export command for dashboard writes.
 
 ### Frontend routes
 
@@ -116,7 +157,7 @@ Directory tree for `code/` with one-line purpose per major folder.
 
 ```
 code/
-├── FUTURE_WORK.md                             # Deferred tasks (crawl API, Frontend, AI workers)
+├── FUTURE_WORK.md                             # Remaining integration and operations work
 ├── SYSTEM_ARCHITECTURE.md                     # Source-of-truth architecture
 ├── AGENTS.MD                                  # This file
 ├── Backend/
@@ -127,12 +168,14 @@ code/
 │   ├── api/                                   # HTTP layer
 │   │   ├── __init__.py
 │   │   ├── analytics.py                       # Trends, tags, source breakdown analytics
+│   │   ├── crawl.py                           # Typed crawl-job acceptance/status API
 │   │   ├── cleanup_raw_insights.py            # Raw data cleanup utilities
 │   │   └── views.py                           # Flask route handlers
 │   ├── db/                                    # MongoDB helpers
 │   │   ├── __init__.py
-│   │   └── persist.py                         # History, company profiles, legacy AI helpers
-│   │   └── ai_store.py                        # Upserts for ai_posts / ai_comments
+│   │   ├── persist.py                         # Article/history Mongo helpers
+│   │   ├── ai_store.py                        # Upserts for ai_posts / ai_comments
+│   │   └── ...                                # Article/database helpers; influencer export is DCT-owned
 │   ├── ai/                                    # AI/ML modules — ranking, summarization, collection cards
 │   │   ├── __init__.py
 │   │   ├── AI.env                             # AI credentials (MONGO_URI, GROQ_API_KEY)
@@ -143,12 +186,14 @@ code/
 │   │   ├── Topic_detection/                   # Topic extraction from article text
 │   │   ├── README_CREDENTIALS.md
 │   │   └── requirements.txt
-│   ├── workers/                               # AI queue consumer (sim SQS → NLP → ai_posts/ai_comments)
+│   ├── publishers/                            # Typed crawl-command SQS publisher
+│   ├── workers/                               # SQS response consumer: article events only
 │   │   ├── README.md
 │   │   ├── queue.py                           # SimulatedQueue (receive/delete)
-│   │   ├── events.py                          # raw_collected validation
-│   │   ├── process.py                         # NLP + upsert
-│   │   ├── consumer.py                        # Loop / --once
+│   │   ├── events.py                          # article_collected response validation
+│   │   ├── process.py                         # Article NLP + upsert
+│   │   ├── consumer.py                        # Article response-event worker only
+│   │   ├── consumer.py                        # Event routing / loop / --once
 │   │   ├── sample_io.py                       # Write sample_messages/output
 │   │   └── sample_messages/
 │   │       ├── input/                         # DCT-shaped queue samples
@@ -158,6 +203,9 @@ code/
 │   │   └── backend.env                        # Backend API keys and MongoDB URI (not committed)
 │   └── tests/
 │       └── __init__.py
+├── schedule_run/                              # Direct typed SQS trigger scripts
+│   ├── trigger_article_pipeline.py
+│   └── trigger_influencer_pipeline.py
 └── Frontend/                                  # Django web UI
     ├── ai_listening_tool/                     # Main Django app — templates, static assets, views
     ├── manage.py
@@ -199,7 +247,7 @@ Avoid using helper functions and complex structures when something can easily be
 
 | File | Key variables | Used by |
 |------|---------------|---------|
-| `Backend/credentials/backend.env` | `MONGODB_URI`, `NEWSAPI_KEY`, `SERPAPI_KEY` | Flask Backend (`config.py`) |
+| `Backend/credentials/backend.env` | AWS/SQS vars; `ARTICLE_MONGODB_URI`, `ARTICLE_MONGODB_DBNAME`; `DASHBOARD_DATABASE_HOST`, `DASHBOARD_DATABASE_NAME`, `DASHBOARD_DATABASE_USERNAME`, `DASHBOARD_DATABASE_PASSWORD`; dashboard API keys | API, command publisher, response worker |
 | `Backend/ai/AI.env` | `MONGO_URI`, `GROQ_API_KEY` | All AI modules |
 
 ### Setup
@@ -207,13 +255,13 @@ Avoid using helper functions and complex structures when something can easily be
 ```bash
 # Backend credentials
 cp code/Backend/credentials/backend_example.env code/Backend/credentials/backend.env
-# Edit backend.env with your API keys and MongoDB URI
+# Edit backend.env with API keys, SQS settings, article MongoDB, and dashboard MongoDB settings
 
 # AI credentials — edit code/Backend/ai/AI.env directly
-# Set MONGO_URI (same cluster as MONGODB_URI) and GROQ_API_KEY
+# Set MONGO_URI and GROQ_API_KEY for legacy/card AI modules
 ```
 
-**Critical:** Backend reads `MONGODB_URI`; AI reads `MONGO_URI`. Both must point to the same MongoDB cluster (`pace_database`).
+**Database split:** `ARTICLE_MONGODB_URI` / `ARTICLE_MONGODB_DBNAME` (or legacy `MONGODB_*` fallbacks) are for article AI data. The four `DASHBOARD_DATABASE_*` variables connect to the separate Robotic Marketer dashboard MongoDB. Do not merge these connections or reuse the dashboard credentials for article persistence.
 
 ---
 
@@ -222,6 +270,8 @@ cp code/Backend/credentials/backend_example.env code/Backend/credentials/backend
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/health/` | GET | Health check |
+| `/api/crawl/` | POST | Accept a typed `content_crawl` or `influencer_discovery` job and publish it to SQS |
+| `/api/crawl/<job_id>/` | GET | Return persisted crawl-job status |
 | `/api/search/` | POST | **501 stub** — crawl ingest moved to Data-Crawler-Task; see `FUTURE_WORK.md` |
 | `/api/search/status/` | GET | Poll AI processing progress by `history_id` |
 | `/api/results/` | GET | Paginated ranked + summarized results |
@@ -239,12 +289,11 @@ cp code/Backend/credentials/backend_example.env code/Backend/credentials/backend
 | `/api/companies/` | GET | List companies |
 | `/api/debug/mongo/` | GET | MongoDB collection names and document counts |
 
-### Agent search flow (legacy — blocked until Crawl Management API)
+### Crawl request flow
 
 ```
-POST /api/search/  → 501 not_implemented (see FUTURE_WORK.md)
-# After future crawl API lands:
-# create crawl job → poll status → GET /api/results/ (or successor)
+POST /api/crawl/ → create crawl_jobs entry → SQS crawl.command.queue
+GET /api/crawl/<job_id>/ → poll current job state
 ```
 
 ---
@@ -258,10 +307,10 @@ python app.py 8000
 
 curl -s http://127.0.0.1:8000/api/health/
 
-# Search is stubbed (expect 501)
-curl -s -X POST "http://127.0.0.1:8000/api/search/" \
+# Submit an article crawl through the API
+curl -s -X POST "http://127.0.0.1:8000/api/crawl/" \
   -H "Content-Type: application/json" \
-  -d '{"subject":"Artificial Intelligence"}'
+  -d '{"task_type":"content_crawl","input":{"query":"Artificial Intelligence","source":"all","time_delta":"week","limit":20}}'
 
 # Frontend page checks
 curl -s http://127.0.0.1:8001/tool/
@@ -273,9 +322,10 @@ curl -s http://127.0.0.1:8001/tool/results/
 
 ## Common pitfalls
 
-- **Start Backend before Frontend.** The Frontend depends on `API_BASE` reaching the Backend.
-- **`POST /api/search/` returns 501.** New searches are intentionally broken until the Crawl Management API lands (`FUTURE_WORK.md`).
-- **Mismatched Mongo env vars.** Backend uses `MONGODB_URI` in `backend.env`; AI uses `MONGO_URI` in `AI.env`. Both must reference the same cluster.
+- **Run all three backend services for a real crawl.** Data-Crawler-Task consumes commands, the Backend API submits/persists jobs, and the Pace response worker consumes results.
+- **`POST /api/search/` returns 501.** It is legacy; create new jobs with `POST /api/crawl/` or the schedule triggers.
+- **Separate Mongo targets.** Article AI data and dashboard influencer lists use different connections. Verify both the article and `DASHBOARD_DATABASE_*` settings before processing real SQS events.
+- **Direct schedule triggers do not persist jobs.** Use `POST /api/crawl/` when dashboard polling of `crawl_jobs` is required.
 - **Slow first AI run.** SBERT and spaCy models download on first use. Expect a long cold start.
 - **Summarization vs Groq.** Search-result summaries are extractive (TF-IDF, no LLM). Groq is used only for `collection_card` features (ideas, competitors, news feed, etc.).
 - **Do not commit credentials.** Use `backend_example.env` as a template. Real keys belong in `backend.env` and `AI.env`, which are gitignored.

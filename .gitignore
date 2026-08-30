@@ -72,3 +72,6 @@ temp/
 node_modules/
 npm-debug.log*
 yarn-error.log*
+INFLUENCER_LIST_PIPELINE_IMPLEMENTATION_PLAN.md
+FUTURE_WORK.md
+AGENTS.MD
