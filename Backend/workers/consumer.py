@@ -7,9 +7,12 @@ from typing import Optional
 
 import config
 from workers.process import process_event
+from workers.events import EVENT_RAW_COLLECTED
 from workers.queue import QueueBackend, SimulatedQueue, get_queue
 
 logger = logging.getLogger(__name__)
+
+LEGACY_INFLUENCER_CONTENT_TYPE = "influencer"
 
 
 def handle_message(
@@ -27,6 +30,29 @@ def handle_message(
         body.get("content_type") if isinstance(body, dict) else None,
     )
     try:
+        event_type = (body.get("event_type") or EVENT_RAW_COLLECTED).strip()
+        content_type = (body.get("content_type") or "").strip()
+        if event_type == EVENT_RAW_COLLECTED and content_type == LEGACY_INFLUENCER_CONTENT_TYPE:
+            # The retired influencer response path used the same raw event name
+            # as content. Discard only that distinguishable legacy shape.
+            logger.warning(
+                "[Consumer] ===== message DISCARD legacy influencer event_type=%s handle=%s "
+                "sample=%s source=%s content_type=%s =====",
+                event_type,
+                receipt_handle[:8],
+                sample_name,
+                body.get("source"),
+                body.get("content_type"),
+            )
+            queue.delete(receipt_handle)
+            logger.info(
+                "[Consumer] ===== message ACK legacy event_type=%s handle=%s =====",
+                event_type,
+                receipt_handle[:8],
+            )
+            return True
+        if event_type not in {EVENT_RAW_COLLECTED, "article_collected"}:
+            raise ValueError(f"unsupported event_type: {event_type!r}")
         result = process_event(body, persist=True, sample_name=sample_name)
         queue.delete(receipt_handle)
         logger.info(

@@ -1,4 +1,4 @@
-"""Validate DCT-shaped raw_collected envelopes for the AI worker."""
+"""Validate Data-Crawler-Task raw_collected response-event envelopes."""
 from __future__ import annotations
 
 import logging
@@ -11,6 +11,9 @@ SUPPORTED_SCHEMA_VERSIONS: Set[int] = {1}
 CONTENT_POST = "post"
 CONTENT_COMMENT = "comment"
 EVENT_RAW_COLLECTED = "raw_collected"
+# Transitional alias for callers that used the temporary integration name;
+# newly emitted content events always use EVENT_RAW_COLLECTED.
+EVENT_ARTICLE_COLLECTED = EVENT_RAW_COLLECTED
 SUPPORTED_CONTENT_TYPES = {CONTENT_POST, CONTENT_COMMENT}
 
 
@@ -20,7 +23,7 @@ class EventValidationError(ValueError):
 
 def validate_event(msg: Any) -> Dict[str, Any]:
     """
-    Validate a raw_collected event (same contract as Data-Crawler-Task events.py).
+    Validate a raw_collected event.
 
     Required: schema_version in {1}, content_type in {post,comment},
     non-empty source + external_id, payload object or null.
@@ -54,12 +57,12 @@ def validate_event(msg: Any) -> Dict[str, Any]:
         raise EventValidationError("payload must be an object or null")
 
     event_type = (msg.get("event_type") or EVENT_RAW_COLLECTED).strip()
-    if event_type and event_type != EVENT_RAW_COLLECTED:
+    if event_type not in {EVENT_RAW_COLLECTED, "article_collected"}:
         raise EventValidationError(f"unsupported event_type: {event_type!r}")
 
     logger.info(
         "[Validate] OK event_type=%s content_type=%s source=%s external_id=%s history_id=%s",
-        event_type or EVENT_RAW_COLLECTED,
+        event_type,
         content_type,
         source,
         external_id,

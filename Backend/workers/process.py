@@ -1,4 +1,4 @@
-"""Process one raw_collected message: LLM enrichment via ai.enrichment then cloud upsert."""
+"""Process one raw_collected article message: AI enrichment then cloud upsert."""
 from __future__ import annotations
 
 import logging

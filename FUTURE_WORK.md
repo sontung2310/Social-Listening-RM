@@ -1,45 +1,41 @@
 # Future work
 
-Problems and follow-ups deferred from the Backend cleanup (crawl/Kafka removal + restructure). Treat [`SYSTEM_ARCHITECTURE.md`](SYSTEM_ARCHITECTURE.md) as the source of truth.
+[`SYSTEM_ARCHITECTURE.md`](SYSTEM_ARCHITECTURE.md) is the source of truth for the current typed crawl and influencer workflow.
 
-## Checklist
+## Implemented
 
-### 1. Crawl Management API (replaces stubbed `POST /api/search/`)
+- [x] Pace-Unit accepts complete typed `content_crawl` and `influencer_discovery` requests.
+- [x] DCT owns influencer discovery, evaluation, task state, durable queue processing, candidate persistence, and evidence persistence.
+- [x] Influencer requests normalize `field + related_terms` through an in-memory `TopicBrief` and pass the field-first term list to every discovery source.
+- [x] X author and scroll limits remain configuration-driven; public discovery keeps its configured templates and per-article limit.
+- [x] Influencer results do not publish to the article response queue. Pace proxies status to DCT.
+- [x] Explicit dashboard export supports freshness filtering, flag preservation, empty-result rejection, and `--dry-run`.
+- [x] Legacy influencer collections remain available for rollback but are not written by the new runtime.
+- [x] Unit tests cover request validation, normalization, source propagation, evaluator rules, candidate identity/freshness, evidence, resume, status transitions, worker failures, response routing, and export mapping.
 
-- [x] Implement crawl job acceptance on Pace-Unit (`POST /api/crawl/`).
-- [x] Persist job metadata in `crawl_jobs`.
-- [x] Publish commands to SQS `social_listening_data_crawling` (`crawl.command.queue`) for **Data-Crawler-Task**.
-- [x] Expose job status endpoints the dashboard can poll (`GET /api/crawl/<job_id>/`).
-- [ ] Remove or permanently retire the current `501` stub on `POST /api/search/`.
+## Remaining work
 
-### 2. Frontend new-search integration
+### Live validation
 
-- [ ] Stop calling stubbed `POST /api/search/` for new searches (it returns **501** today).
-- [ ] Wire the search / crawl UI to the new Crawl Management API and status endpoints.
-- [ ] Keep reading existing history/results from Mongo where still valid.
+- [ ] Run one real command-to-status influencer task with the configured X session, SQS, and DCT MongoDB.
+- [ ] Run one dashboard export dry run and verify the selected `company_id`, `platform`, `company_domain`, and freshness window.
+- [ ] Run one non-dry export against a staging dashboard document and verify existing `status` and `relevancy` flags remain intact.
+- [ ] Verify lock contention, X access failure, redrive/DLQ, and resume behavior in an isolated queue environment.
 
-### 3. AI worker pool (`workers/`)
+### Frontend/API adoption
 
-- [x] **Simulated** consumer of `crawl.ai.queue` (`AI_QUEUE_BACKEND=sim` + `sample_messages/`) — see `code/Backend/workers/`
-- [x] Wire real AWS SQS receive/delete (`AI_QUEUE_BACKEND=sqs` → `SQS_AI_QUEUE_URL`)
-- [x] Run NLP via `ai/` (sentiment, topics, summarization) per message
-- [x] Write enriched results to cloud Mongo `ai_posts` / `ai_comments`
-- [x] On failure, leave message for AWS DLQ redrive; delete only after successful cloud save
+- [ ] Update the frontend influencer form to submit the complete request contract to `POST /api/crawl/`.
+- [ ] Poll `GET /api/crawl/<job_id>/` and display DCT states and progress counters.
+- [ ] Replace any remaining use of legacy `POST /api/search/` for new crawl requests.
 
-### 4. Credential / config cleanup
+### Operations
 
-- [x] Add AWS / SQS env vars for command queue, AI queue, and DLQ.
-- [ ] Confirm crawl-only API keys (Guardian, YouTube, Reddit, Playwright, etc.) live only in **Data-Crawler-Task**.
-- [ ] Keep Pace-Unit keys that the dashboard still needs (e.g. `SERPAPI_KEY`, `NEWSAPI_KEY`, Mongo, Groq).
+- [ ] Run DCT command consumption and Pace article response consumption under supervised services.
+- [ ] Add SQS/DLQ alarms and a documented operator procedure for `--resume` and dashboard export.
+- [ ] Add isolated integration tests using test queues and test MongoDB databases.
 
-### 5. Optional cleanup of legacy search/history model
+## Ownership
 
-- [ ] Decide whether `history` + `/api/search/status/` remain or are replaced by `crawl_jobs`.
-- [ ] Remove unused history helpers / docs once the jobs model is live.
-- [ ] Update `AGENTS.MD` endpoint table after the new API ships.
-
-## Notes
-
-- **Data-Crawler-Task** owns source crawlers, local Mongo raw upsert, and AI event publish.
-- **Pace-Unit** owns the web dashboard, crawl command API (pending), AI workers (pending), and analytics read path.
-- Kafka was removed from this repo; do not reintroduce it — use SQS per architecture.
+- **Data-Crawler-Task:** content crawling, influencer discovery, evaluation, persistence, task status, durable queues, evidence, and dashboard export.
+- **Pace-Unit:** typed request acceptance, `crawl_jobs` facade, article response processing, article AI persistence, and status proxying.
+- **Dashboard MongoDB:** updated only by the explicit DCT export command.

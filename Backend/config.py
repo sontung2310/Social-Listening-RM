@@ -33,9 +33,28 @@ SERPAPI_KEY = os.environ.get("SERPAPI_KEY")
 GOOGLE_TRENDS_GEO = os.environ.get("GOOGLE_TRENDS_GEO", "AU")
 GOOGLE_TRENDS_TZ = int(os.environ.get("GOOGLE_TRENDS_TZ", "-660"))
 
-# MONGODB
-MONGODB_URI = os.environ.get("MONGODB_URI")
-MONGODB_DBNAME = os.environ.get("MONGODB_DBNAME", "pace_database")
+# ARTICLE / AI MONGODB
+# Existing names remain fallbacks for current deployments.
+ARTICLE_MONGODB_URI = os.environ.get("ARTICLE_MONGODB_URI") or os.environ.get("MONGODB_URI")
+ARTICLE_MONGODB_DBNAME = (
+    os.environ.get("ARTICLE_MONGODB_DBNAME")
+    or os.environ.get("MONGODB_DBNAME", "pace_database")
+)
+MONGODB_URI = ARTICLE_MONGODB_URI
+MONGODB_DBNAME = ARTICLE_MONGODB_DBNAME
+
+# DASHBOARD INFLUENCER-LIST MONGODB (separate host/database)
+DASHBOARD_DATABASE_HOST = (os.environ.get("DASHBOARD_DATABASE_HOST") or "").strip()
+DASHBOARD_DATABASE_NAME = (os.environ.get("DASHBOARD_DATABASE_NAME") or "").strip()
+DASHBOARD_DATABASE_USERNAME = (os.environ.get("DASHBOARD_DATABASE_USERNAME") or "").strip()
+DASHBOARD_DATABASE_PASSWORD = (os.environ.get("DASHBOARD_DATABASE_PASSWORD") or "").strip()
+# Data-Crawler-Task is the source of truth for influencer task state. Pace
+# keeps the command facade but does not consume influencer result events.
+DCT_API_BASE_URL = (
+    os.environ.get("DCT_API_BASE_URL") or "http://127.0.0.1:8001"
+).strip().rstrip("/")
+DCT_API_KEY = (os.environ.get("DCT_API_KEY") or "").strip()
+DCT_API_TIMEOUT_SECONDS = float(os.environ.get("DCT_API_TIMEOUT_SECONDS", "10"))
 
 # SERVER CONFIG
 HOST = os.environ.get("HOST", "127.0.0.1")
